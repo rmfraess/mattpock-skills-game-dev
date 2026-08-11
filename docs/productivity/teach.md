@@ -1,8 +1,8 @@
 ## What it does
 
-`teach` turns the directory you run it in into a standing teaching workspace and teaches you one topic across many [sessions](https://www.aihero.dev/ai-coding-dictionary/session), in short self-contained HTML lessons.
+`teach` creates a dedicated teaching workspace and teaches you one topic across many [sessions](https://www.aihero.dev/ai-coding-dictionary/session), using short self-contained HTML lessons plus safe practice and evidence. It resolves the installed skill root separately from the user-selected course root, so course files do not accidentally land inside an installed skill or active production project.
 
-It does not teach from what the [model](https://www.aihero.dev/ai-coding-dictionary/model) already knows. [Parametric knowledge](https://www.aihero.dev/ai-coding-dictionary/parametric-knowledge) is treated as untrusted: before it teaches, it goes and finds high-trust resources, records them in `RESOURCES.md`, and cites them inside every lesson. The other structural fact is that it is [stateful](https://www.aihero.dev/ai-coding-dictionary/stateful) — the mission, the resources, the lessons and the record of what you have learned all live in the directory as files, so the next session picks up from those files rather than from whatever is left of the last conversation.
+It does not teach from what the [model](https://www.aihero.dev/ai-coding-dictionary/model) already knows. [Parametric knowledge](https://www.aihero.dev/ai-coding-dictionary/parametric-knowledge) is treated as untrusted: before teaching, it finds high-trust, version-matched resources, records them in `RESOURCES.md`, and cites them inside every lesson. The other structural fact is that it is [stateful](https://www.aihero.dev/ai-coding-dictionary/stateful) — the mission, resources, lessons, practice artifacts, and evidence-backed learning record live in the workspace, so the next session picks up from files rather than conversational residue.
 
 ## When to reach for it
 
@@ -21,7 +21,7 @@ Reach for it when the learning is the project: a language, a framework, a codeba
 
 ## Prerequisites
 
-`teach` builds a directory rather than producing a file, and the skill assumes one mission per workspace — so run it somewhere you are happy to give over to a single topic. Keep it out of the project you are working in: a separate repo is the recommended home, rather than a global `~/.learnings/` folder or the working project itself. A dedicated repo also makes the lessons committable, which is how teams have shared them.
+`teach` builds a directory rather than producing a file, and assumes one mission per workspace. Choose and confirm its absolute path before writing. A dedicated directory or repo is the default; an installed-skill directory and an active production project are separate roots. Hands-on game/tool learning also names an isolated practice project, sandbox map/scene/package, or copied content set with a reset/recovery path and matching engine/tool version.
 
 What accumulates in that directory:
 
@@ -32,10 +32,11 @@ What accumulates in that directory:
 | `lessons/*.html` | The numbered lessons — the primary unit of teaching |
 | `reference/*.html` | Compressed cheat-sheets, algorithms, glossaries: the documents you actually return to |
 | `learning-records/*.md` | ADR-style notes on what you have demonstrably learned, used to decide what to teach next |
+| `practice/*` or a named sandbox | Exercises, fixtures, captures and disposable engine-native artifacts kept away from the only production copy |
 | `assets/*` | Reusable components — a shared stylesheet first — so the lessons look like one course |
 | `NOTES.md` | Your stated teaching preferences |
 
-Two honest notes on that list. A glossary suits most topics, but the skill ships a `GLOSSARY-FORMAT.md` that `SKILL.md` no longer links to, so you will only get one if you ask ([issue #559](https://github.com/mattpocock/skills/issues/559)). And the workspace is not always created where you expect — see the first question below before you build a long course on top of it.
+A glossary suits most topics, but the skill ships a `GLOSSARY-FORMAT.md` that `SKILL.md` no longer links to, so you will only get one if you ask ([issue #559](https://github.com/mattpocock/skills/issues/559)). The workspace-root ambiguity is now guarded explicitly—see the first question below.
 
 ## Storage strength, not fluency
 
@@ -47,7 +48,9 @@ It is also why the skill pushes back rather than obliges. A question that needs 
 
 ## Lessons, references and components
 
-A **lesson** is one self-contained HTML file, short enough to finish in a sitting, tied to the mission, giving one tangible win. It cites its sources, recommends one primary source to go and read yourself, and links to sibling lessons and reference documents.
+A **lesson** is one self-contained HTML file, short enough to finish in a sitting, tied to the mission, giving one tangible win. It cites versioned sources, recommends one primary source, and links to sibling lessons and reference documents. HTML is the explanation surface, not proof of skill: procedural lessons also define a safe practice task, feedback method, success evidence, and reset path.
+
+Game-development practice stays engine-native where fidelity matters. Content work uses copied/sandbox artifacts and editor plus visual/audio review; network work names topology, authority, latency/loss, and participant count; performance work names representative scene/build, hardware or labelled proxy, and stable before/after capture conditions. Promotion into production is a separate user-approved action after compatibility, ownership, licensing, source fidelity, recovery, and evidence checks.
 
 The split worth knowing: lessons are rarely revisited, reference documents are. So the compressed essence of a lesson — the syntax table, the algorithm, the pose sequence, the glossary — belongs in `reference/`, not buried in the lesson that introduced it.
 
@@ -56,7 +59,7 @@ Lessons are built from **components** in `assets/`: stylesheets, quiz widgets, s
 ## Common questions
 
 **Where does it put the files? Mine ended up in `~/.claude/skills`.**
-A real, open bug ([#377](https://github.com/mattpocock/skills/issues/377)). `SKILL.md` uses `./` for two different roots at once: `./MISSION-FORMAT.md` and its siblings really do sit next to `SKILL.md` in the installed skill, while `./lessons/`, `./reference/`, `./learning-records/` and `./assets/` are meant to be in your directory. An agent that resolves the first kind against the skill's install directory goes on to resolve the second kind there too, and writes your course into the skill folder. Check where the first lesson landed before you build on it, and name the directory explicitly when you start rather than relying on "the current directory" being understood.
+The skill now resolves two roots before writing: the read-only installed skill root for format references and a confirmed absolute teaching-workspace root for course files. If the current directory is an installed skill or active production project, it chooses or asks for a dedicated workspace instead of silently writing there. Verify the returned workspace path before the first lesson.
 
 **Do I stay in one session, or start a new one per lesson?**
 All three approaches work — staying in the same session, re-invoking `/teach` in a new session, or opening a new session in the same folder. Each lesson is its own invocation. The folder is the continuity, not the conversation. Common practice is to open a fresh session in the workspace and say `/teach next lesson for <topic>`.
@@ -68,7 +71,7 @@ You don't, on the skill's word alone. You read the primary sources. `teach` is n
 Confirmed by several people, on Sonnet, on Opus and on GLM, and still unfixed. `SKILL.md` now requires every answer to be the same number of words, which kills a different tell — the correct answer used to be the only fully-reasoned one — but says nothing about position. One contributor tested an instruction-level fix for position and reported the correct answer still landing in slot A 33 times out of 33 across nine lessons ([#335](https://github.com/mattpocock/skills/issues/335)), which points at a shuffling quiz component in `assets/` as the real fix rather than better wording. Until that ships, treat answer position as meaningless. Your `assets/` directory is yours to change, so asking for a component that shuffles at render time is a legitimate local fix.
 
 **It assumed I already knew things, and used terms it never defined.**
-The commonest substantive complaint. There is no assessment step: `teach` infers your level from the mission and the learning records, and in session one there are no learning records. One user running it inside a wayfinder pipeline put it plainly — "It never did grilling to establish my starting point so it made lots of assumptions of what I already knew." Another reported lessons leaning on undefined jargon, and a lesson tailored to their hardware that covered what the hardware could do while never saying what it couldn't. Two things help: state your prior knowledge and your gaps in the first message, and correct the level out loud when a lesson misses, because the correction becomes a learning record and steers the next one. An explicit knowledge-assessment step is a standing feature request ([#725](https://github.com/mattpocock/skills/issues/725)), not shipped behaviour.
+The first run now establishes a baseline after the mission: a self-report plus one brief retrieval or practical diagnostic. The first learning record stores the highest demonstrated evidence level—exposure, self-report, retrieval, guided practice, independent practice, or production-ready under stated conditions—and the remaining limits. Unsafe or inaccessible diagnostics become walkthroughs with an explicit fidelity limit, not assumed proficiency.
 
 **Does it do spaced repetition, and does it know when to stop teaching?**
 No to the first, and not reliably to the second. Spacing and interleaving are principles the lessons are designed against, but nothing schedules a review, and there is no Anki or calendar integration — both are recurring requests. The related gap is exit criteria: as one user put it, `teach` "is good at making the next lesson, but not as good at knowing when to stop and switch to review or real practice." If you want review or drilling instead of new material, ask for it; the skill will not propose the switch on its own.
@@ -82,9 +85,14 @@ There is no canonical answer, and the reported differences are large. Higher [re
 ## It's working if
 
 - The first thing it does in an empty directory is interview you about why you want this, rather than produce a lesson.
+- The teaching workspace and any practice sandbox are explicit absolute paths outside installed skills and the only production copy.
+- The first run records a self-report plus retrieval or practical baseline instead of guessing the level.
 - `RESOURCES.md` fills up before the lessons do, and each lesson names one primary source worth reading yourself.
+- Sources record edition/revision, access date, relevant tool/engine version, and access/licensing limits.
 - Claims in a lesson carry links out. A lesson with no citations is the skill teaching from memory.
 - A lesson takes one sitting and leaves you able to do one thing you couldn't before.
+- Procedural skills are demonstrated in safe practice with evidence appropriate to the real failure class; HTML exposure alone is not counted as mastery.
+- Network and performance claims state their topology and representative capture conditions; production readiness remains conditional.
 - Opening a fresh session in the folder and saying "next lesson" continues the course instead of restarting it.
 - `learning-records/` grows, and lessons stop re-teaching what you have already demonstrated.
 - The lessons look like one course — they link the stylesheet in `assets/` rather than each carrying its own.
@@ -92,6 +100,6 @@ There is no canonical answer, and the reported differences are large. Higher [re
 
 ## Where it fits
 
-`teach` is a **reach-for-it-anytime standalone**. It is not a step in a build chain and shares no artifacts with the engineering flow; it owns its directory and lives there for as long as the topic lasts.
+`teach` is a **reach-for-it-anytime standalone**. It is not a step in a build chain; it owns a dedicated course workspace and any explicitly named practice sandbox for as long as the topic lasts. Practice artifacts enter production only through a separate approved promotion step.
 
 Its one real neighbour is [handoff](https://aihero.dev/skills-handoff), through the composition Matt named as the answer to "what do I do if I'm being grilled about something I don't understand?": don't stop the grilling to learn — `/handoff` to a teaching workspace, learn it there with `/teach`, then go back and pick up where you left off. The nearby alternative is [research](https://aihero.dev/skills-research), for when what you want is a cited document rather than lessons and retention. When you are not sure which skill or flow fits, [ask-matt](https://aihero.dev/skills-ask-matt) routes you over the whole set.
