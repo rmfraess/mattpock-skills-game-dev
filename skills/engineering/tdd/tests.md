@@ -22,6 +22,15 @@ Characteristics:
 - Describes WHAT, not HOW
 - One logical assertion per test
 
+Game behavior follows the same rule when an independent oracle exists:
+
+- Good: a seeded inventory or save migration invariant through a stable gameplay/data interface.
+- Good: a focused engine-native test that actually exercises required lifecycle, serialization, or world wiring.
+- Bad: asserting proposed camera-tuning literals and calling that proof of feel.
+- Bad: a pure unit test described as replication, editor, package, or target coverage when those systems never ran.
+
+Keep slow engine, multi-instance, package, and target scenarios outside the inner red-green cycle unless they are the smallest faithful seam. Preserve them as deliberate higher-layer evidence.
+
 ## Bad Tests
 
 **Implementation-detail tests**: Coupled to internal structure.

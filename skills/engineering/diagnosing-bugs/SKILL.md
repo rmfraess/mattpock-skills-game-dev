@@ -34,17 +34,19 @@ Spend disproportionate effort here. **Be aggressive. Be creative. Refuse to give
 9. **Differential loop.** Run the same input through old-version vs new-version (or two configs) and diff outputs.
 10. **HITL bash script.** Last resort. If a human must click, drive _them_ with `scripts/hitl-loop.template.sh` so the loop is still structured. Captured output feeds back to you.
 
+For game work, apply `/game-development` and also consider engine automation, deterministic replay, isolated test maps/scenes, recorded input, frame/render/animation/audio capture, visual logger, profiler or memory trace, asset/reference/import audit, synchronized multi-instance logs with network emulation, package/cook logs, crash artifacts, and a packaged target run. Exact tools belong to the project adapter.
+
 Build the right feedback loop, and the bug is 90% fixed.
 
 ### Tighten the loop
 
-Treat the loop as a product. Once you have _a_ loop, **tighten** it:
+Treat the loop as a product. **Tight** means the shortest repeatable protocol that remains faithful to the reported causal system—not necessarily one shell command or a seconds-long run. Once you have a loop, tighten it without removing fidelity:
 
 - Can I make it faster? (Cache setup, skip unrelated init, narrow the test scope.)
 - Can I make the signal sharper? (Assert on the specific symptom, not "didn't crash".)
-- Can I make it more deterministic? (Pin time, seed RNG, isolate filesystem, freeze network.)
+- Can I make it more repeatable? (Pin time, seed RNG, isolate filesystem, control network/cache/device/settings, quantify reproduction rate.)
 
-A 30-second flaky loop is barely better than no loop; a 2-second deterministic one is tight — a debugging superpower.
+Prefer seconds and determinism when fidelity survives. Preserve representative content volume, duration, concurrency, hardware, cache, timing, and world context when they are causal; a fast loop for a different symptom is not tight.
 
 ### Non-deterministic bugs
 
@@ -54,16 +56,16 @@ The goal is not a clean repro but a **higher reproduction rate**. Loop the trigg
 
 Stop and say so explicitly. List what you tried. Ask the user for: (a) access to whatever environment reproduces it, (b) a redacted captured artifact (HAR file, log dump, core dump, screen recording with timestamps), or (c) permission to add temporary production instrumentation. Do **not** proceed to hypothesise without a loop.
 
-### Completion criterion — a tight loop that goes red
+### Completion criterion — a tight faithful protocol that goes red
 
-Phase 1 is done when the loop is **tight** and **red-capable**: you can name **one command** — a script path, a test invocation, a curl — that you have **already run at least once** (show the invocation and its output, redacted), and that is:
+Phase 1 is done when you can name one **repro protocol** already run at least once, with redacted output or captured evidence, and record its build/engine revision, scene/content, platform/device/settings, cache/input/network conditions, duration, reproduction rate, and symptom signal where material. It must be:
 
 - [ ] **Red-capable** — it drives the actual bug code path and asserts the **user's exact symptom**, so it can go red on this bug and green once fixed. Not "runs without erroring" — it must be able to _catch this specific bug_.
-- [ ] **Deterministic** — same verdict every run (flaky bugs: a pinned, high reproduction rate, per above).
-- [ ] **Fast** — seconds, not minutes.
-- [ ] **Agent-runnable** — you can run it unattended; a human in the loop only via `scripts/hitl-loop.template.sh`.
+- [ ] **Repeatable** — controlled conditions and a measured reproduction rate; deterministic where the phenomenon permits.
+- [ ] **As fast as fidelity permits** — no retained duration, scale, topology, or target condition is ceremonial.
+- [ ] **Runnable through an available adapter** — automation when possible; structured human observation when perception or unavailable hardware is part of the signal.
 
-If you catch yourself reading code to build a theory before this command exists, **stop — jumping straight to a hypothesis is the exact failure this skill prevents.** No red-capable command, no Phase 2.
+If you catch yourself building a theory before this protocol exists, stop. No red-capable faithful signal, no Phase 2.
 
 ## Phase 2 — Reproduce + minimise
 
@@ -77,7 +79,7 @@ Confirm:
 
 ### Minimise
 
-Once it's red, shrink the repro to the **smallest scenario that still goes red**. Cut inputs, callers, config, data, and steps **one at a time**, re-running the loop after each cut — keep only what's load-bearing for the failure.
+Once it's red, shrink the repro to the **smallest faithful scenario that still goes red**. Cut inputs, callers, config, data, content, and steps one at a time, re-running after each cut. Keep representative scale, duration, hardware, cache, timing, topology, or world context when it is load-bearing.
 
 Why bother: a minimal repro shrinks the hypothesis space in Phase 3 (fewer moving parts left to suspect) and becomes the clean regression test in Phase 5.
 
@@ -107,13 +109,17 @@ Tool preference:
 2. **Targeted logs** at the boundaries that distinguish hypotheses.
 3. Never "log everything and grep".
 
+For visual/audio/animation/rendering defects, use timestamped captures and owning-tool diagnostics. For editor/asset failures, audit source/import/reference state. For performance, streaming, memory, networking, packaging, and target failures, use the corresponding trace/log/capture rather than substituting generic logs.
+
+Before mutating editor assets, imports, or shared project state, establish the authoritative source, one mutable owner, a recovery point, and intentional save paths. Do not broad-save, reimport, migrate, or delete merely to tighten the loop.
+
 **Tag every debug log** with a unique prefix, e.g. `[DEBUG-a4f2]`. Cleanup at the end becomes a single grep. Untagged logs survive; tagged logs die.
 
 **Perf branch.** For performance regressions, logs are usually wrong. Instead: establish a baseline measurement (timing harness, `performance.now()`, profiler, query plan), then bisect. Measure first, fix second.
 
 ## Phase 5 — Fix + regression test
 
-Write the regression test **before the fix** — but only if there is a **correct seam** for it.
+Write the regression test **before the fix** — but only if there is a correct automatable seam. Otherwise preserve the smallest reliable regression protocol and evidence artifact without pretending it is an automated test.
 
 A correct seam is one where the test exercises the **real bug pattern** as it occurs at the call site. If the only available seam is too shallow (single-caller test when the bug needs multiple callers, unit test that can't replicate the chain that triggered the bug), a regression test there gives false confidence.
 
@@ -127,6 +133,8 @@ If a correct seam exists:
 4. Watch it pass.
 5. Re-run the Phase 1 feedback loop against the original (un-minimised) scenario.
 
+Close every material layer the original failure crossed: deterministic test, editor/runtime behavior, profile/budget, multiplayer, package, or target device as applicable.
+
 ## Phase 6 — Cleanup + post-mortem
 
 Required before declaring done:
@@ -134,7 +142,7 @@ Required before declaring done:
 - [ ] Original repro no longer reproduces (re-run the Phase 1 loop)
 - [ ] Regression test passes (or absence of seam is documented)
 - [ ] All `[DEBUG-...]` instrumentation removed (`grep` the prefix)
-- [ ] Throwaway prototypes deleted (or moved to a clearly-marked debug location)
+- [ ] Throwaway artifacts intentionally retained or removed through their owning workflow; editor references/imports/redirectors or equivalent state validated
 - [ ] The hypothesis that turned out correct is stated in the commit / PR message — so the next debugger learns
 
 **Then ask: what would have prevented this bug?** If the answer involves architectural change (no good test seam, tangled callers, hidden coupling) hand off to the `/improve-codebase-architecture` skill with the specifics. Make the recommendation **after** the fix is in, not before — you have more information now than when you started.
