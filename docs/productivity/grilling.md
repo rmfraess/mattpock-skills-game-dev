@@ -1,8 +1,8 @@
 ## What it does
 
-`grilling` is the interview loop that stress-tests a plan, a decision, or an idea before anyone acts on it. It maps the subject as a **design tree** — every decision branches into the decisions that hang off it — and interviews you branch by branch until nothing is left silently assumed.
+`grilling` is the interview loop that stress-tests a plan, decision, or idea before anyone acts. It maps the subject as a **design tree**, classifies each open node by how it can be resolved, and interviews the current decision horizon until nothing material is silently assumed.
 
-It does not ask one question at a time, and it does not ask everything at once. Each **round** asks the whole **frontier**: every decision whose prerequisites are already settled, and nothing else. Two questions never share a round if one depends on the other — a question that hinges on an answer still open belongs to a later round. Your answers settle decisions, the frontier moves outward, and the next round asks what that unblocked. Thirteen questions typically land in about three rounds rather than thirteen.
+For game work it begins with intended player experience, the strongest creative promise, the current playable milestone, and approved source/project authority. It does not turn camera feel into a prose setting, intentional mystery into a forced answer, or a specialist mechanism into a creative decision.
 
 ## When to reach for it
 
@@ -26,7 +26,9 @@ The **design tree** is the model of the subject: decisions with decisions hangin
 
 Inside a round every question arrives in a fixed shape: numbered and titled behind a `❓`, then the body, then the agent's recommended answer alone on a `➡️` line. That is what makes a round answerable by number — "1 yes, 2 the second option, 3 no, here's why" — instead of by quoting questions back. The format has one known rough edge: the recommendation sometimes argues *against* the question as it was worded, so agreeing with the recommendation means answering "no" to the question. When that happens, answer the recommendation and say so.
 
-The other half of the design is the split between facts and decisions. Facts are the skill's own job: when a frontier question needs something the [environment](https://www.aihero.dev/ai-coding-dictionary/environment) can settle, it dispatches a [sub-agent](https://www.aihero.dev/ai-coding-dictionary/subagent) to go and find out rather than asking you. It does not block on that — only the questions downstream of a running exploration wait. Decisions are yours, and it must wait for them. An agent running `grilling` that answers its own decisions has broken the skill, not interpreted it liberally. The session ends when the frontier is empty, and it will not act on what you agreed until you confirm you have reached a shared understanding.
+The other half is resolution classification. A **decision** belongs to its named authority; a **fact** is looked up; an **experiment** needs representative observed evidence; a **specialist question** routes to its technical owner; **protected ambiguity** remains unresolved by design; and a **deferred/out-of-scope** node sits beyond this milestone. Evidence lookup can run through one accountable runtime adapter without blocking unrelated questions, but workers never answer the user's decisions or redelegate recursively.
+
+The session ends when the current milestone's frontier is empty, not when every imaginable future branch has been designed. The closing ledger names settled decisions, evidence, experiments, specialist questions, protected ambiguity, deferrals, owners, and return paths. It still waits for your confirmation before action.
 
 The honest limit: the frontier is the agent's judgement, not a computed graph. It can put two questions in one round and only afterwards discover that one answer should have changed the other. There is no guard against that beyond telling it, which reopens the affected branch in the next round.
 
@@ -55,7 +57,7 @@ The round-based default is genuinely contested. Practitioners who read slowly, w
 Into this skill. Round-based questioning shipped briefly as a separate skill, then moved into `grilling` itself, so everything built on the primitive — `grill-me`, `grill-with-docs`, `triage`, `wayfinder` — got it at once. There is no `batch-grill-me` to install, and no separate sequential skill either; the `CLAUDE.md` line above is the way back to one-at-a-time.
 
 **Asking a whole round at once must lose the questions my earlier answers would have raised. Doesn't it?**
-This is the most common objection to the round design, and the frontier is the answer to it: a round only ever contains questions that do not depend on each other, so no answer in a round can invalidate another question in that round. Answers still reshape everything downstream — the next round is recomputed, not pre-written. What you lose is smaller than "all questions at once" implies, and larger than nothing: see the frontier's limit above.
+This is the most common objection to the round design, and the frontier is the answer: a round contains decisions that do not depend on each other. Answers still reshape everything downstream—the next round is recomputed, not pre-written. Empirical and specialist nodes do not get smuggled into a round merely to keep momentum; their resolution paths block only the branches that depend on them.
 
 **It ran out of questions and started building.**
 A confirmation gate exists precisely for this: the skill is not finished when the frontier empties, it is finished when you say the understanding is shared. Weaker and faster [models](https://www.aihero.dev/ai-coding-dictionary/model) still break it — this is reported most often on lower-effort or non-frontier models, which collapse "interview until shared understanding" into a couple of questions and an outline. If yours does it, the reliable fix is a line in your own `AGENTS.md` or `CLAUDE.md` telling the agent not to implement without permission.
@@ -77,11 +79,12 @@ A real and unfixed rough edge, reported across [harnesses](https://www.aihero.de
 - A round arrives as a numbered list, each question with its recommendation on a separate `➡️` line, and you can answer the whole round by number.
 - Nothing in a round needs another question in the same round answered first.
 - Later rounds ask things the first round could not have asked.
-- It goes and looks facts up — reading files, dispatching a sub-agent — rather than asking you something it could have found out.
-- Research running in the background does not stall the round; only the questions that depend on it wait.
-- It stops at the end and asks you to confirm the understanding is shared, instead of starting work.
+- It looks facts up rather than asking you; observed feel/runtime questions become experiments, not invented answers.
+- Specialist mechanisms and source conflicts reach their correct authorities while creative trade-offs remain with you.
+- Protected ambiguity and future-scope branches do not reappear as forced frontier questions.
+- It stops at the milestone boundary with an owner/evidence ledger and asks you to confirm it instead of starting work.
 - Question count stays high while round count stays low.
 
 ## Where it fits
 
-`grilling` is a **primitive**, not a step you schedule: the single source of truth for the interview technique, kept in one place so every skill that needs an interview reaches for it instead of inventing one. [grill-me](https://aihero.dev/skills-grill-me) and [grill-with-docs](https://aihero.dev/skills-grill-with-docs) are its two user-invoked front doors, and `grill-with-docs` is where the main build chain begins, ahead of [to-spec](https://aihero.dev/skills-to-spec). [wayfinder](https://aihero.dev/skills-wayfinder) runs it to resolve decision tickets, [triage](https://aihero.dev/skills-triage) to grill a vague report into a workable one, and [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) to walk the tree once you have picked a candidate to deepen. When you are unsure which entry point fits, [ask-matt](https://aihero.dev/skills-ask-matt) routes you.
+`grilling` is a **primitive**, not a scheduled step: the shared interview and resolution-classification technique. [grill-me](https://aihero.dev/skills-grill-me) and [grill-with-docs](https://aihero.dev/skills-grill-with-docs) are its front doors; [game-development](https://aihero.dev/skills-game-development) supplies game authority, evidence, and artifact vocabulary. [wayfinder](https://aihero.dev/skills-wayfinder), [triage](https://aihero.dev/skills-triage), and [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) invoke it for their bounded decisions. [ask-matt](https://aihero.dev/skills-ask-matt) routes uncertain entry points.

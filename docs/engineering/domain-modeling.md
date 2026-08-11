@@ -1,6 +1,6 @@
 ## What it does
 
-`domain-modeling` builds and sharpens a project's **ubiquitous language** while you are designing — challenging a term that conflicts with the glossary, forcing a precise word where you used a vague one, and stress-testing a relationship with a concrete scenario until the boundaries are exact.
+`domain-modeling` builds and sharpens a project's shared language while you design—challenging conflicts, qualifying terms that legitimately differ by context, mapping boundaries, and stress-testing relationships without turning hypothetical scenarios into authoritative facts.
 
 It is the **active** discipline, not the passive one. Reading `CONTEXT.md` to borrow its vocabulary is a one-line habit any skill can do; this skill is for when you are *changing* the model. That is what makes it interrupt. It writes a resolved term into `CONTEXT.md` at the moment it is resolved, in the middle of the conversation, rather than producing a tidy glossary at the end — because the batched version is a summary of a [session](https://www.aihero.dev/ai-coding-dictionary/session), and the inline version is the session's actual output.
 
@@ -21,12 +21,12 @@ Reach for it when the *words* are the problem:
 
 ## Prerequisites
 
-None up front. The skill writes into two places and creates both lazily:
+The skill first follows the project's configured language and decision-record locations. With no configured alternative, it creates these lazily:
 
 - **`CONTEXT.md`** at the repo root, created by the first resolved term. In a repo with a `CONTEXT-MAP.md` at the root, terms go into the per-context `CONTEXT.md` the map points at instead.
 - **`docs/adr/`**, created by the first ADR that clears the bar.
 
-Nothing needs to exist before you start, and nothing is created speculatively.
+For game work it also reads the approved source/canon, adaptation, gameplay, engine, art, world, and production authorities. Before inline writes it checks ownership/locks; before sequential ADR creation it rechecks numbering.
 
 ## Two artifacts, two bars
 
@@ -34,7 +34,7 @@ The glossary and the ADR are held to different standards, and conflating them is
 
 | | `CONTEXT.md` | `docs/adr/NNNN-slug.md` |
 | --- | --- | --- |
-| Holds | Terms. What a thing **is**, in one or two sentences, with rejected synonyms under `_Avoid_` | One decision, in one to three sentences: context, choice, reason |
+| Holds | Scoped terms, concise definitions, rejected synonyms, and boundary mappings | One technical/architectural decision, in one to three sentences: context, choice, reason |
 | Bar to write | A vague term became canonical | **All three**: hard to reverse, surprising without context, the result of a real trade-off |
 | Written | Inline, the moment the term is settled | Offered, not assumed |
 | Never holds | Implementation details, a [spec](https://www.aihero.dev/ai-coding-dictionary/spec), a scratch pad, general programming concepts | A diary of every choice made this session |
@@ -45,9 +45,9 @@ The `CONTEXT.md` rule is the one to actually hold onto, because it is the one th
 
 ## Cross-referencing, and where it stops
 
-The move that makes the skill click: when you state how something works, it checks the code and surfaces the contradiction. *"Your code cancels entire Orders, but you just said partial cancellation is possible — which is right?"* The language and the code are made to agree, out loud, before either is changed.
+The move that makes the skill click: when you state how something works, it checks the authorities that can own the claim and surfaces contradictions. That can be code, Blueprint/visual script, serialized/editor content, data/config, approved source/adaptation, player-facing intent, or observed runtime evidence. It names the scope and owner rather than treating code as the universal winner.
 
-The limit is worth knowing. It cross-references **code** and the committed `CONTEXT.md`/ADRs, and nothing else. It does not search your issue tracker, so a naming collision that was argued out and deliberately settled in a closed issue months ago gets surfaced as if it were new. There is [an open request](https://github.com/mattpocock/skills/issues/717) to fix this; until then, the workaround is to put the instruction in your own `docs/agents/domain.md`, which the skills already read.
+It still follows configured authoritative locations rather than searching every historic conversation by default. If a naming decision lives only in a closed issue or private discussion, promote it to the configured glossary/decision record or give the run an explicit pointer; otherwise later sessions cannot distinguish it from an undocumented claim.
 
 ## Common questions
 
@@ -64,7 +64,7 @@ It was removed, and it was not deprecated. Its job moved into `domain-modeling`,
 Ask for it explicitly rather than waiting for it to accumulate. `/grill-with-docs help me scaffold my existing repo with a CONTEXT.md` is the documented route; expect a long interrogation — one user reported 50+ questions before the file was in shape. Incidental use builds the glossary far too slowly on a brownfield repo.
 
 **Can I keep the domain model and use my own ADR format?**
-Not cleanly today. The glossary half and the ADR half ship in one skill, so a team with an established ADR convention — different template, different location, different naming — gets instructions that conflict with its house style. The current options are to copy the skill locally and edit it, or to override the ADR conventions in your repo's own agent docs. Splitting the two apart is [an open request](https://github.com/mattpocock/skills/issues/557).
+Yes. Project configuration and established conventions override the fallback `docs/adr/NNNN-slug.md` format. Canon, adaptation, narrative, art-direction, world, and player-experience choices go to their owning creative record rather than being forced into an ADR.
 
 **Does a glossary actually earn its keep? It is one more artifact to review, and it can go stale.**
 Sometimes it does not, and it is worth being honest about where. DDD gets less useful the closer it gets to the implementation — the payoff is upstream, in naming and concept alignment, not in aggregates and layer ceremony. Synonym control matters at naming boundaries: module names, table names, status enums, issue titles, CLI commands. It matters much less in ordinary prose. There is also a live objection that domain terms compress communication *between humans* who already share them, and that an agent responds the same way to the plain-English description — on that reading, the glossary's value is keeping you and your reviewers aligned with what the agent is doing, not making the agent better. On a one-day build, skip it. And an unreviewed, agent-authored glossary is worse than none: it becomes confident-sounding lore that later sessions treat as truth.
@@ -79,8 +79,11 @@ No, and there is no plan for a skill that does. A domain language you do not und
 - It refuses to write an ADR for something you could undo tomorrow — and says which of the three tests failed.
 - New entries define what a thing *is* in one or two sentences and name the words you are giving up under `_Avoid_`.
 - It quotes your code back at you when your code and your sentence disagree.
+- It checks source, editor/serialized content, data/config, runtime evidence, and approved player-facing intent when those—not code—own the claim.
+- Cross-discipline words are qualified and mapped instead of flattened, and empirical meanings stay provisional until their experiment closes.
+- Two sessions cannot silently edit the same glossary or claim the same decision-record number.
 - `CONTEXT.md` gets shorter as often as it gets longer.
 
 ## Where it fits
 
-`domain-modeling` is a **model-invoked reference** that runs *underneath* other skills more often than it runs on its own. [grill-with-docs](https://aihero.dev/skills-grill-with-docs) drives it through a grilling session, [wayfinder](https://aihero.dev/skills-wayfinder) loads it while charting a map, [triage](https://aihero.dev/skills-triage) uses it to keep [tickets](https://www.aihero.dev/ai-coding-dictionary/ticket) in the project's own words, and [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) calls it as decisions crystallise. Its closest sibling is [codebase-design](https://aihero.dev/skills-codebase-design): the two are the vocabulary layer under everything else, this one for the *domain*, that one for the module's *shape*. It is also reachable directly, when you want the discipline without committing to the steps of whatever skill would normally pull it in. When you are unsure which skill fits, [ask-matt](https://aihero.dev/skills-ask-matt) routes you.
+`domain-modeling` is a model-invoked reference used under [grill-with-docs](https://aihero.dev/skills-grill-with-docs), [wayfinder](https://aihero.dev/skills-wayfinder), [triage](https://aihero.dev/skills-triage), and [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture). [game-development](https://aihero.dev/skills-game-development) supplies game authority/artifact boundaries; [codebase-design](https://aihero.dev/skills-codebase-design) supplies module-shape vocabulary. [ask-matt](https://aihero.dev/skills-ask-matt) routes uncertain cases.

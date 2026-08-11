@@ -6,13 +6,14 @@ The brief states **what the agent should do**, which stretches to both surfaces:
 
 ## Principles
 
-### Durability over precision
+### Durability with exact artifact identity when safety needs it
 
 The issue may sit in `ready-for-agent` for days or weeks. The codebase will change in the meantime. Write the brief so it stays useful even as files are renamed, moved, or refactored.
 
 - **Do** describe interfaces, types, and behavioral contracts
 - **Do** name specific types, function signatures, or config shapes that the agent should look for or modify
-- **Don't** reference file paths — they go stale
+- **Don't** reference incidental source file paths—those go stale
+- **Do** name the exact stable identity of a shared map/scene, package, Blueprint/visual script, material, data asset, source asset, build target, or settings asset when ownership, locking, reproduction, or evidence depends on it
 - **Don't** reference line numbers
 - **Don't** assume the current implementation structure will remain the same
 
@@ -32,6 +33,8 @@ The agent needs to know when it's done. Every agent brief must have concrete, te
 - **Good:** "Running `gh issue list --label needs-triage` returns issues that have been through initial classification"
 - **Bad:** "Triage should work correctly"
 
+Each criterion names an observation that can be false before implementation, the necessary evidence layer, representative conditions, and who can accept it. Do not use a unit test to certify feel, visual/audio quality, editor wiring, performance, networking, package, or target behavior it did not observe.
+
 ### Explicit scope boundaries
 
 State what is out of scope. This prevents the agent from gold-plating or making assumptions about adjacent features.
@@ -43,6 +46,8 @@ State what is out of scope. This prevents the agent from gold-plating or making 
 
 **Category:** bug / enhancement
 **Summary:** one-line description of what needs to happen
+**Route / owner:** autonomous worker / named specialist / human-HITL
+**Gate:** unblocked / blocked by <prerequisite> / deferred until <trigger> / awaiting <verification>
 
 **Current behavior:**
 Describe what happens now. For bugs, this is the broken behavior.
@@ -57,8 +62,12 @@ Be specific about edge cases and error conditions.
 - `functionName()` return type — what it currently returns vs what it should return
 - Config shape — any new configuration options needed
 
+**Owned artifacts and handoff:**
+- Stable artifact identity, lock/checkout/recovery rule, and incompatible concurrent work
+- Evidence package and reviewer expected at handoff
+
 **Acceptance criteria:**
-- [ ] Specific, testable criterion 1
+- [ ] Specific, falsifiable criterion 1 — evidence, representative conditions, accepting authority
 - [ ] Specific, testable criterion 2
 - [ ] Specific, testable criterion 3
 

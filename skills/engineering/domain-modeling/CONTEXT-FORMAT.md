@@ -22,16 +22,31 @@ A person or organization that places orders.
 _Avoid_: Client, buyer, account
 ```
 
+When a word legitimately crosses contexts, qualify and map it instead of globally banning the other meanings:
+
+```md
+**Narrative Character** (Story):
+A person as established by the approved source/adaptation.
+_Maps to_: Gameplay Character when represented as an interactive agent; Character Asset for the authored content package.
+
+**Character Asset** (Content):
+The authored model, rig, animation, and metadata package used to represent a character.
+_Not the same as_: Narrative Character, engine character class
+```
+
 ## Rules
 
 - **Be opinionated.** When multiple words exist for the same concept, pick the best one and list the others under `_Avoid_`.
 - **Keep definitions tight.** One or two sentences max. Define what it IS, not what it does.
 - **Only include terms specific to this project's context.** General programming concepts (timeouts, error types, utility patterns) don't belong even if the project uses them extensively. Before adding a term, ask: is this a concept unique to this context, or a general programming concept? Only the former belongs.
 - **Group terms under subheadings** when natural clusters emerge. If all terms belong to a single cohesive area, a flat list is fine.
+- **Preserve authority.** A hypothetical scenario cannot create canon, and an observed runtime convention cannot silently rewrite an approved creative term.
+- **Mark empirical language provisional.** Link the experiment or evidence needed to settle a term whose meaning depends on play or runtime behavior.
+- **Keep the glossary lean.** Requirements, content inventories, implementation details, evidence, ownership plans, and decision rationale belong in their owning artifacts.
 
 ## Single vs multi-context repos
 
-**Single context (most repos):** One `CONTEXT.md` at the repo root.
+**Single context (default when the project has no configured alternative):** One `CONTEXT.md` at the repo root.
 
 **Multiple contexts:** A `CONTEXT-MAP.md` at the repo root lists the contexts, where they live, and how they relate to each other:
 
