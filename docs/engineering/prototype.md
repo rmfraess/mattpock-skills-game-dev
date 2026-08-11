@@ -1,6 +1,6 @@
 ## What it does
 
-`prototype` writes **throwaway code that answers a question** — does this state model feel right, or what should this screen look like. The question comes first and decides the shape of everything that follows; a prototype that answers the wrong question is pure waste, however good it looks.
+`prototype` builds a **throwaway artifact that answers a question** — does this state model feel right, what should this screen look like, or what actually happens in the game engine, editor, network, content pipeline, or target build. The question comes first and decides the required fidelity; a prototype that answers the wrong question is pure waste, however good it looks.
 
 Throwaway is a constraint on how the code is *written*, not a promise to destroy it. No tests, no error handling beyond what makes it run, no abstractions, no persistence — because none of that helps you learn the one thing you're trying to learn. What survives is the answer, folded into the real code, and the prototype itself, parked on a branch out of main as the evidence the answer came from.
 
@@ -12,14 +12,15 @@ Reach for it the moment you hit a question you can't settle by talking — a sta
 
 You will also arrive here without choosing to. [wayfinder](https://aihero.dev/skills-wayfinder) files `prototype` decision [tickets](https://www.aihero.dev/ai-coding-dictionary/ticket) on its map, and working one is this skill.
 
-## Two branches
+## Three branches
 
 The question picks the branch, and the branches produce very different artifacts:
 
 - **"Does this logic / state model feel right?"** — a **single shareable HTML file**. One self-contained page, no build and no server, that someone opens by double-clicking. It carries a labelled state panel that re-renders after every click, free-play buttons for poking at the model in any order, and tabbed **guided walkthroughs** — one scenario per tab, each with the ordered buttons to press underneath it. Everything is labelled in domain language, so you can hand it to a designer, a PM or a domain expert and let them feel the model themselves. The logic behind the page is a small pure module — a reducer, a machine, a set of functions — kept clean of the DOM so the validated version lifts straight into the real code.
 - **"What should this look like?"** — several **radically different** UI variations on one route, switchable from a floating bottom bar and a `?variant=` URL param. Variants must disagree about structure, not colour; three tweaked card grids is wallpaper, not a prototype. They render inside a real page wherever possible, against real data and real density, because a variant judged in a vacuum always looks fine.
+- **"What happens in the game?"** — the smallest engine-native or target-native experiment that preserves the behavior in question: a playable slice for feel, a test map for engine lifecycle, a disposable import for content workflow, a representative scene plus profile for performance, the required server/client topology for networking, or a packaged build for platform behavior. HTML may explain the idea, but it cannot supply this evidence.
 
-Both keep state in memory, start with no thinking required, and show you the full state after every step. The moment you find yourself hardening one — adding a test, wiring the real database, generalising for a case you might want later — you have stopped prototyping.
+All branches stay isolated from production, start with one explicit run path, and surface the state and conditions behind the answer. Game prototypes retain only question-critical instrumentation and representative content. The moment you harden one for production instead of learning from it, you have stopped prototyping.
 
 ## The prototype is a primary source
 
