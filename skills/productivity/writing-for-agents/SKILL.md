@@ -9,13 +9,14 @@ When the document you're writing is a skill, read [`SKILL-MECHANICS.md`](SKILL-M
 
 ## Context pointers
 
-A **context pointer** is a reference held in the agent's context that names some out-of-context material and encodes the condition for reaching it. A skill's description is one; a line in `AGENTS.md` naming a doc is the same object. The pointer's _wording_, not its target, decides when the agent reaches the material — and how reliably. A must-have target behind a weakly worded pointer is a variance bug: sharpen the wording first, and inline the material only if sharpening fails.
+A **context pointer** is a reference held in the agent's context that names some out-of-context material and encodes the condition for reaching it. A skill's description is one; a line in `AGENTS.md` naming a doc is the same object. Treat it as a contract: the target must exist and the pointer must make its trigger, authority, scope, version expectations, access requirements, and load path unambiguous enough for the reader that will use it. The pointer's _wording_, not its target, decides when the agent reaches the material — and how reliably. A must-have target behind a weakly worded pointer is a variance bug: sharpen the wording first, and inline the material only if sharpening fails.
 
 A pointer does two jobs — state what the material is, and list the **branches** that should trigger reaching it (a branch is a distinct case the document handles, so different runs take different paths through it). Every word of an always-loaded pointer costs on every turn, so it earns even harder pruning than the body:
 
 - **Front-load the leading word** — the pointer is where it does its triggering work.
 - **One trigger per branch.** Synonyms that rename a single branch are one branch written twice; collapse them and keep only genuinely distinct branches.
 - **Cut identity the body already carries.**
+- **Inline mutation guardrails at the action boundary.** Detailed policy can remain behind a pointer, but a step that can destroy, publish, overwrite, charge, expose, or corrupt state must carry the immediate safe action and stop condition where the mutation occurs.
 
 ## The two loads
 
@@ -49,7 +50,7 @@ Every step ends on a **completion criterion** — the condition that tells the a
 - **Clarity** — can the agent tell done from not-done? A vague bound ("understanding reached") invites **premature completion**: ending the step before it is genuinely done, attention slipping to _being done_. The visible steps still ahead — the **post-completion steps** — supply the pull; the criterion's clarity is the resistance. Defend in order: **sharpen the bound first** (local and cheap); only if it is irreducibly fuzzy _and_ you observe the rush, hide the later steps by splitting the sequence — and hiding only works across a real context boundary (a hand-off or a subagent dispatch; an inline call leaves the later steps in context and clears nothing).
 - **Demand** — how much it requires. "Every modified model accounted for" forces thorough work where "produce a change list" does not. Demand drives **legwork** — the digging the agent does within the work, latent in the wording rather than written as its own step — and it is not step-bound: "every rule applied" binds a body of flat reference just as "every step done" binds a sequence, which is how an all-reference document still carries an exhaustiveness bar.
 
-The strongest criteria are both checkable and exhaustive.
+The strongest criteria are both checkable and exhaustive. Make them **claim-specific**: text checks prove text claims; automated tests prove deterministic behavior; editor validation proves editor state; play sessions support experience claims; profiles support performance claims; network runs support replication claims; packages and target-device runs support shipping claims. Never let a lower evidence layer imply a higher one.
 
 ## When to split
 
@@ -64,6 +65,12 @@ A **leading word** is a compact concept already living in the model's pretrainin
 
 It anchors twice. In the body, _execution_: the agent reaches for the same behaviour every time the word appears, and inside flat reference it focuses attention on a class of thing to look for. In a pointer, _invocation_: when the same word lives in your prompts, your docs, and your codebase, the agent links that shared language to the material and reaches it more reliably.
 
+Leading words compress shared meaning; they do not flatten a specialised domain. Preserve precise native terms from an engine, editor, renderer, animation system, audio tool, platform SDK, or production discipline rather than replacing them with generic app vocabulary.
+
+## Game-development documents
+
+When the document governs game, engine, editor, gameplay, content, rendering, audio, performance, networking, build, or platform work, apply `/game-development`. Name the player-facing outcome and authority, classify mutable and opaque artifacts, make ownership explicit, and bind every completion claim to the smallest credible evidence layer. Keep engine- and platform-specific commands in the project's runtime adapter rather than teaching one toolchain as universal behavior.
+
 Hunt for opportunities to refactor with leading words. A triad spelled out at three sites, a pointer spending a sentence to gesture at one idea — each is a passage begging to collapse into a single token:
 
 - "fast, deterministic, low-overhead" → _tight_ (a _tight_ loop).
@@ -76,6 +83,6 @@ You win twice: fewer tokens, and a sharper hook for the agent to hang its thinki
 ## Pruning
 
 - Keep each meaning in a **single source of truth**: one authoritative place, so changing the behaviour is a one-place edit. **Duplication** — the same meaning in more than one place — costs maintenance and tokens, and inflates a meaning's prominence on the ladder past its real rank. (The accidental inverse of a leading word, which repeats a token on purpose, never the meaning.)
-- The **environment** is a source of truth too — `package.json` scripts, config files, the directory layout, `--help` output — and a document that restates it is a **cache**: a copy of a lookup, earning its load only when the lookup is expensive. Cache what the agent cannot find by looking: the unwritten convention, the reason behind a choice, the gotcha no config confesses. Leave the one-file, one-command lookups to the environment, where they cannot go stale.
+- The **environment** is a source of truth too — manifests, scripts, config, directory layout, engine project settings, editor-visible state, source-control locks, build tools, and `--help` output. A document that restates visible state is a **cache**, earning its load only when the lookup is expensive or inaccessible. State how the agent can observe the authority: a text lookup is not a substitute for hidden editor state, a locked asset, or a target-device result.
 - Check every line for **relevance**: does it still bear on what the document does? A line loses relevance by never bearing on the task (mere exposition, or a branch that should be disclosed) or by going stale as the behaviour or world it describes changes. Shorter documents are easier to keep relevant. Without a pruning discipline the default fate is **sediment**: stale layers that settle because adding feels safe and removing feels risky, until you must core down through them to find what is still live.
-- Hunt **no-ops** sentence by sentence: an instruction the model already obeys by default pays load to say nothing. The test — does it change behaviour versus the default? — is model-relative, not reader-relative: two people disagreeing about a no-op disagree about the default, and settle it by running the document, not by debate. When a sentence fails, delete the whole sentence rather than trim words from it. The test also grades leading words: a word too weak to beat the default (_be thorough_ when the agent is already thorough-ish) is a no-op, and the fix is a stronger word (_relentless_), not a different technique.
+- Hunt **no-ops** sentence by sentence: an instruction the model already obeys by default pays load to say nothing. The test — does it change behaviour versus the default? — is model-, harness-, task-, and branch-relative, not reader-relative. Evaluate across the supported matrix before deleting shared guidance. A safety guardrail is not a no-op merely because one successful run did not exercise it; test its hazard branch. When a sentence fails, delete the whole sentence rather than trim words from it. The test also grades leading words: a word too weak to beat the default (_be thorough_ when the agent is already thorough-ish) is a no-op, and the fix is a stronger word (_relentless_), not a different technique.

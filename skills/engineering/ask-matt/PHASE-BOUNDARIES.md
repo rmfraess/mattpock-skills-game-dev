@@ -2,7 +2,9 @@
 
 A **phase** is a chunk of work inside a session — the grilling, the implementation, the QA. The definition is fuzzy on purpose: a phase ends when you think *"ok, we're done with that"*.
 
-The **phase boundary** is the gap between two phases, and it is the only place this decision belongs. Mid-phase there is no decision to make — continue, or split the work that's left into subagents. Compacting mid-phase makes the agent lose the thread.
+The **phase boundary** is the gap between two phases, and it is the only place this decision belongs. Mid-phase there is no decision to make — continue, or split only independent work with explicit ownership. Compacting mid-phase makes the agent lose the thread.
+
+Before choosing, stabilise production state. Save or close editor-owned assets, leave builds and source control recoverable, preserve the evidence the next phase needs, and record mutable files, locks, or ownership another worker must respect. A clean context boundary is not a safe production boundary unless both the conversation and the project state can be resumed.
 
 ## The five options
 
@@ -11,7 +13,7 @@ The **phase boundary** is the gap between two phases, and it is the only place t
 | **Continue** | Stay in the session. No context switch at all.                    |
 | **`/clear`** | Empty the context window and start from nothing.                  |
 | **`/handoff`** | Write a portable markdown file and seed a session anywhere with it. |
-| **Subagent** | Send the task to its own context window and get a report back.     |
+| **Worker** | Send the task through an inspectable session or durable work queue and get a report back. |
 | **`/compact`** | Compress this context and seed a fresh session with the summary.  |
 
 ## The tree
@@ -26,14 +28,14 @@ The cost of getting this wrong is one-way. Clear a *relevant* context and you lo
 
 **3. Do you need to hand off?** `/handoff` is narrow. You need it only when you are:
 
-- swapping to a **new harness** (Claude → Codex),
+- swapping to a **new harness**,
 - moving to a **new directory** or repo,
 - sending the work to a **colleague**,
 - or forking a side task you found **mid-phase** without derailing what you're doing.
 
 That list is the whole clause. What `/handoff` buys is **portability** — a file that travels. If nothing is travelling, you don't need it.
 
-**4. Can the task be done AFK?** Is it scoped tightly enough to run with you away from the keyboard, no steering? Then send it to a **subagent** and leave this session untouched. Automated review is the standard case: the agent reads the diff and reports, and you aren't needed while it does.
+**4. Can the task be done unattended and ownership-safe?** Is it scoped tightly enough to need no steering, with inputs, mutable artifacts, authority, and acceptance evidence explicit? Then use the harness's **inspectable worker session or durable work queue** and leave this session untouched. Automated read-only review is the standard case. If the runtime cannot preserve or expose the work, or two workers would mutate the same asset, continue here or create a portable handoff instead.
 
 **5. Otherwise, `/compact`.** Relevant context, same harness, same directory, and you need to stay in the loop — this is where the tree lands, and it lands here often. Pass it an instruction (`/compact we're going to QA this area`) so the summary keeps what the next phase needs.
 
