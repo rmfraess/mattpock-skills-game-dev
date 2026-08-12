@@ -1,6 +1,6 @@
 ## What it does
 
-`wizard` generates an interactive bash script that walks a human, step by step, through a manual procedure — wiring up third-party services, running a one-off migration, moving a project from state A to state B. It opens each URL, says what to click and copy, captures what comes back, and writes it into `.env` files and GitHub Actions secrets.
+`wizard` generates an interactive bash script that walks a human, step by step, through a manual procedure — wiring up services, provisioning platforms or devices, running a migration, or moving a project from state A to state B. It captures values locally and writes them only to destinations the project has approved.
 
 The [agent](https://www.aihero.dev/ai-coding-dictionary/agent) writes the script; it never runs it. You do, on your own machine. So a wizard is not a list of instructions you follow — it is a program that drives the procedure and holds the state, and your part is to click, paste, and press Enter.
 
@@ -12,7 +12,8 @@ Reach for it when the next thing blocking you is a trip through a dashboard:
 
 | Situation | What the wizard does |
 | --- | --- |
-| A new dev needs six services configured before the app boots | Opens each dashboard in order, captures the keys, writes them to `.env` and CI |
+| A new dev needs six services configured before the app boots | Opens each dashboard in order, captures the keys locally, and writes them to approved private stores |
+| A game build needs an SDK, signing identity, entitlement, or target device | Pins the tool/platform version, verifies the target identity, and stops at human-only account operations |
 | A one-off migration needs switches flipped in a specific order | Sequences the irreversible steps behind confirmation gates |
 | A project has to move from state A to state B once | Walks the transition and reports what it could not do |
 | You are about to write those steps into a README | Writes an executable version instead, which can't rot as quietly |
@@ -29,7 +30,7 @@ A **stage** is one focused task on one screen. The script clears the terminal be
 
 Scoping happens before a line is written. The [skill](https://www.aihero.dev/ai-coding-dictionary/skill) reads the repo instead of asking cold: `.env*`, `docker-compose*`, framework config, and every `secrets.*` / `vars.*` reference in `.github/workflows/` — each of those is a value the wizard has to produce. It then shows you the ordered stage list to confirm, and only after that maps each stage to the exact path a human follows ("Dashboard → Developers → API keys → Reveal test key → copy"). Where it doesn't know the current UI, it asks you or checks the docs rather than inventing clicks.
 
-For each captured value, scoping settles where it lands:
+For each captured value, scoping settles its classification, owner, and approved destination. A GitHub remote does not by itself make GitHub Secrets the right store, and a local `.env` is allowed to receive a secret only when it is private and ignored.
 
 | Destination | When |
 | --- | --- |
@@ -39,9 +40,15 @@ For each captured value, scoping settles where it lands:
 | Both `.env` and a secret | Local dev and CI both need it |
 | Nowhere | The stage is a pure action — a switch flipped, a plan upgraded |
 
+## Safety is part of the procedure
+
+Before a destructive, billable, production, migration, signing, account, device, editor-content, or platform action, the wizard names the target environment and consequences, verifies a recovery point, and uses an exact-phrase confirmation. Safe paths are rehearsed in a sandbox or dry-run mode where possible. A skipped required stage changes the result to **Setup requires follow-up** rather than printing a false success.
+
+Secrets never pass through the agent conversation or terminal arguments. The human enters them into the generated script with hidden input; tracked or non-ignored `.env` destinations are refused.
+
 ## The template already solves the UX
 
-The [template](https://github.com/mattpocock/skills/blob/main/skills/engineering/wizard/template.sh) ships the whole experience: progress with time remaining, confirmation gates, cross-platform URL opening including WSL, hidden entry for secrets, idempotent `.env` upserts, `gh secret` / `gh variable` writes, and a closing summary of everything it had to skip. Everything above the `STAGES` marker is a fixed library, identical in every wizard and never hand-edited. The consistency is the point. Your job is only to scope the procedure and author its stages.
+The [template](https://github.com/mattpocock/skills/blob/main/skills/engineering/wizard/template.sh) ships the whole experience: stage progress, ordinary and exact-phrase confirmation gates, cross-platform URL opening including WSL, hidden entry for secrets, private `.env` writes, `gh secret` / `gh variable` writes, and an honest closing summary. Everything above the `STAGES` marker is a fixed library, identical in every wizard and never hand-edited. The consistency is the point.
 
 The agent that writes a wizard never runs it end to end, because it opens browsers and waits for human input. It verifies statically instead: `bash -n`, `shellcheck` where available, and a trace that every value lands where scoping said it would, with every `set_secret` name matching a real `secrets.*` reference in CI. Set your expectations accordingly — the first run is yours, and that run is the test.
 

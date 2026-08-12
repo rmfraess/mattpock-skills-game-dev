@@ -18,6 +18,13 @@
 ## Constraints
 - {Time, budget, prior commitments, learning preferences, anything that bounds the approach}
 
+## Practice environment
+- {Dedicated workspace or sandbox path; tool/engine version; platform/hardware; reset or recovery path}
+- {Evidence conditions needed for the mission's real-world use}
+
+## Production exclusions
+- {Active projects, live data, opaque assets, accounts, or systems exercises must not modify without a separate approved promotion step}
+
 ## Out of scope
 - {Adjacent topics the user explicitly does not want to chase right now — protects the zone of proximal development}
 ```
@@ -28,4 +35,6 @@
 - **Concrete over abstract.** "Run a half marathon by October" beats "get fitter." "Ship a Rust CLI to my team" beats "learn Rust."
 - **Push back on vagueness.** If the user cannot articulate why, interview them before writing anything. A bad mission is worse than no mission.
 - **Revise when reality shifts.** Missions change. When the user's goal moves, update this file — don't leave a stale mission steering future sessions.
+- **Practise safely.** Hands-on missions name the isolated environment, representative conditions, and production exclusions before exercises begin.
+- **Claim only demonstrated scope.** Success and evidence conditions distinguish understanding, safe practice, and production readiness.
 - **Keep it short.** If `MISSION.md` runs past a screen, it has stopped being a compass and started being a plan.

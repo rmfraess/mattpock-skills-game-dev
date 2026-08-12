@@ -1,6 +1,6 @@
 ## What it does
 
-`wayfinder` takes an effort too big for one agent [session](https://www.aihero.dev/ai-coding-dictionary/session) — an idea whose **destination** you can name but whose route you cannot yet see — and charts it as a shared **map** of **decision tickets** on your issue tracker, then resolves them one at a time until the way is clear.
+`wayfinder` takes an effort too big for one agent [session](https://www.aihero.dev/ai-coding-dictionary/session)—a destination you can name but a route you cannot yet see—and charts it as a shared map of decision tickets. For games, the destination is usually one representative playable milestone with named player-facing and production evidence, not a comprehensive design of the whole game.
 
 It plans, it does not do. Every ticket holds a question whose resolution is a decision, not a slice of a build to execute, and the map is finished when nothing is left to decide before someone goes and builds the thing. That one rule is what separates a wayfinder ticket from an ordinary implementation [ticket](https://www.aihero.dev/ai-coding-dictionary/ticket), and it is the rule agents break most often. When the map clears, wayfinder hands off; it does not carry on into code.
 
@@ -22,7 +22,7 @@ Greenfield is not a requirement. Wayfinder is used routinely on legacy and half-
 
 ## Prerequisites
 
-The map and its tickets live on the repo's issue tracker, so wayfinder needs the tracker wiring that [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) lays down. That step writes a "Wayfinding operations" section describing how the map, its child tickets, blocking edges, and frontier queries are expressed for GitHub, GitLab, or local markdown. Wayfinder resolves that doc through the pointer in your `CLAUDE.md` / `AGENTS.md` rather than a fixed path; with no tracker configured at all it falls back to local markdown files.
+The map and tickets need tracker wiring from [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills). Game projects also need the authority, artifact ownership, lock/recovery, budget, and evidence adapters in `docs/agents/game-development.md`. The runtime can use durable top-level sessions, workers, or queues; the generic workflow does not require hidden subagents, Git branches, or a model-specific context size.
 
 The tracker is not decoration. Blocking is what renders the frontier visually in the tracker's own UI, and a tracker without native dependency links — a self-hosted Gitea, say — degrades wayfinder to inferring blockers from the map text, which works but needs closer supervision.
 
@@ -46,8 +46,8 @@ Every ticket carries a `wayfinder:<type>` label, and is either **[HITL](https://
 | Type | Mode | Reach for it when | Resolved by |
 | --- | --- | --- | --- |
 | `grilling` | HITL | The default. The question can be settled by talking it through. | [grilling](https://aihero.dev/skills-grilling) plus [domain-modeling](https://aihero.dev/skills-domain-modeling), in a fresh session |
-| `prototype` | HITL | "How should this look" or "how should this behave" — a question talking cannot settle. | [prototype](https://aihero.dev/skills-prototype), with the built artifact linked from the ticket as an asset |
-| `research` | AFK | A fact outside the working directory is blocking a decision. | A [research](https://aihero.dev/skills-research) [subagent](https://www.aihero.dev/ai-coding-dictionary/subagent), fired at charting time and burned down in parallel on a `research/<name>` branch |
+| `prototype` | HITL | A look, feel, audio, spatial, runtime, or production question talking cannot settle. | [prototype](https://aihero.dev/skills-prototype); the named authority reviews representative evidence and selects/rejects variants |
+| `research` | AFK | An authoritative fact is blocking a decision. | [research](https://aihero.dev/skills-research) through one inspectable runtime adapter, no redelegation or assumed branch |
 | `task` | Either | Nothing to decide, but manual work blocks a decision — provisioning access, signing up for a service, moving data so its shape can be seen. | The agent alone where it can, otherwise a precise checklist for the human |
 
 `task` is the only type that *does* rather than decides, and it earns its place by unblocking a decision — never by delivering a piece of the destination. This is the type that goes wrong most often in practice: agents interpret it as an implementation step and start writing product code inside the map.
@@ -66,13 +66,13 @@ The whole map — the destination of the entire map, not just the initial sessio
 No. Wayfinder's tickets are decision tickets, and by the time the map closes they are all closed too. What is left is a map full of linked decisions, which is not a build plan. [to-spec](https://aihero.dev/skills-to-spec) collapses those linked decisions into one spec — `/to-spec #<map_issue>` — and [to-tickets](https://aihero.dev/skills-to-tickets) slices that into tracer-bullet implementation tickets. Looping the map straight into [implement](https://aihero.dev/skills-implement) skips the collapse and throws the linked detail away. Go straight to implementation only when the effort turned out genuinely small. People do run the abbreviated pipeline and report it working; the two extra steps buy you an explicit spec artifact that a reviewer or a colleague can read, which matters more the less solo you are.
 
 **My agent started writing production code in the middle of a wayfinder session.**
-The most-reported failure with this skill, and there is a real hole behind it. Wayfinder's "plan, don't do" default can be overridden in the map's **Notes** — but the Notes are written by the agent, so the constraint and its exemption live in the same file the constrained party owns. One user watched an agent write "this map carries execution" into its own Notes and then read it back in later sessions as its own licence, building on a live server. There is no hard in-skill stop for "I meant the default." Until there is: read the Notes on any map you didn't chart yourself, keep implementation in its own sessions, and treat any `wayfinder:task` that looks like a slice of the build as mis-typed.
+Stop it. Agent-authored Notes cannot authorize execution. A bounded exception needs explicit external approval, exact owned artifacts, recovery/lock rules, and acceptance evidence before mutation. A `wayfinder:task` may unblock a decision but may not deliver part of the destination.
 
 **I charted 27 tickets, and by the time I got to the thirteenth, the rest no longer made sense.**
 A real and repeatedly-reported outcome, verbatim from a field report. Wayfinder's default instinct is to plan comprehensively, and a map whose later tickets rest on assumptions the earlier ones invalidate is exactly the waterfall trap the skill is accused of. Two things push back on it. Scope the map to a bounded destination rather than to the whole product — practitioners consistently report that maps scoped to one defined epic behave better than a sprawling "implement V1", and planning something very big is not the goal in the first place — shipping small increments is. And [prototype](https://www.aihero.dev/ai-coding-dictionary/prototyping) aggressively: the whole reason the route stays current is that uncertainty is flushed out by cheap concrete artifacts before implementation depends on it. Wayfinder is "prototypemaxxing", not "planmaxxing".
 
 **Can I work several tickets in parallel?**
-The frontier is built to show you what is takeable, and blocking edges are there so parallel work is safe on paper. In practice one-at-a-time is the safer default. Users working two grilling tickets at once get asked in one session a question they just answered in the other, because the sessions share no [context](https://www.aihero.dev/ai-coding-dictionary/context). There is also a known gap on prototype tickets: an agent has been reported building three UI variations, choosing one itself, and closing the ticket — the selection is yours to make, and the skill does not currently say so loudly enough. If you do run in parallel, review the dependency graph yourself first.
+Only when logical dependencies **and mutable-artifact conflicts** are clear. Tickets touching the same map/scene, Blueprint/visual script, material, data/source asset, or shared decision file require an ownership handoff or conflict edge. Prototype variants cannot close until their named authority reviews representative evidence; the producing agent cannot select its own winner.
 
 **Do I have to use GitHub Issues?**
 No — any issue tracker works. GitHub is the best-supported path because its native sub-issues and blocking relationships are what make the frontier visible without opening the map; GitLab, Linear, Jira and local markdown all get used. Two honest caveats. A tracker with no native blocking means the dependency graph is inferred from text and needs manual correction. And local markdown puts the artifacts in your repo, which is not recommended: storing this material in the repo tends to lead to accidental persistence. Open-source maintainers hit the opposite problem — public trackers filling with agent-generated planning tickets — and tend to choose local markdown anyway.
@@ -89,15 +89,18 @@ It is this skill, renamed to `wayfinder` in v1.1 and invoked as `/wayfinder`. "D
 ## It's working if
 
 - The destination is written down and agreed before a single ticket exists.
+- A game destination names a representative playable milestone, source/creative authority, production conditions, and evidence.
 - Every open ticket reads as a question. Any ticket that reads "build the X" is either mis-typed or belongs downstream of the map.
+- Every ticket names deciding authority, work owner, mutable artifacts/concurrency, and resolution evidence.
 - You can look at your tracker and see which tickets are takeable without opening the map — that is the frontier rendering itself through native blocking.
 - A session resolves one ticket, posts the answer as a resolution comment, closes it, and leaves one line on the map's *Decisions so far*. Then it stops.
 - **Not yet specified** shrinks over time. A patch of fog that graduates into a ticket disappears from that section rather than living in both places.
 - When the opening breadth-first grill turns up no fog at all, the skill stops and tells you the effort is small enough to skip the map.
 - The session that finishes the map hands you toward a spec, not a pull request.
+- Failed prototypes rewire dependent tickets, and accepted cross-disciplinary decisions reach the appropriate shared project document.
 
 ## Where it fits
 
 `wayfinder` is a **situational on-ramp**, not the default front door. The grill-led idea → ship chain is still where most work starts; wayfinder is what you climb onto when the idea is too big to hold in one session, and it merges back onto that chain at [to-spec](https://aihero.dev/skills-to-spec), because a cleared map hands off rather than builds.
 
-Underneath, it is mostly other skills wearing wayfinder's scheduling: [grilling](https://aihero.dev/skills-grilling) and [domain-modeling](https://aihero.dev/skills-domain-modeling) resolve the default ticket type, [prototype](https://aihero.dev/skills-prototype) resolves the tickets that talking cannot, and [research](https://aihero.dev/skills-research) runs as a subagent so its reading never lands in your session. [handoff](https://aihero.dev/skills-handoff) is the bridge in and out — into a map from a conversation that outgrew itself, out of one when a side quest appears mid-session. For anything else, [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.
+Underneath, [grilling](https://aihero.dev/skills-grilling) and [domain-modeling](https://aihero.dev/skills-domain-modeling) resolve decisions, [game-development](https://aihero.dev/skills-game-development) supplies authority/artifact/evidence constraints, [prototype](https://aihero.dev/skills-prototype) resolves empirical questions, and [research](https://aihero.dev/skills-research) supplies bounded facts through the configured runtime adapter. [handoff](https://aihero.dev/skills-handoff) bridges in and out; [ask-matt](https://aihero.dev/skills-ask-matt) routes everything else.

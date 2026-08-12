@@ -2,7 +2,7 @@
 
 `to-tickets` takes a plan, a [spec](https://www.aihero.dev/ai-coding-dictionary/spec), or the conversation you are in, and breaks it into a set of **[tickets](https://www.aihero.dev/ai-coding-dictionary/ticket)** on your issue tracker. Each ticket declares its **blocking edges** — the other tickets that have to finish before it can start.
 
-Every ticket is a **tracer bullet**: a narrow but complete path through every layer of the change — schema, API, UI, tests — that can be demoed on its own the moment it lands. That is the constraint that makes it behave differently from the obvious way to split work, which is to cut one layer at a time and integrate at the end. It also sizes each ticket to fit in a single fresh [context window](https://www.aihero.dev/ai-coding-dictionary/context-window), because the thing that will pick the ticket up is a [session](https://www.aihero.dev/ai-coding-dictionary/session) that has never seen your spec.
+For one-owner application work, every ticket remains a vertical tracer bullet through all material layers. Cross-disciplinary game work preserves one **playable tracer** as the integration spine while splitting runtime, world, technical-art/content, and integration work into owner-bounded tickets. Each ticket owns evidence it can actually produce, names its reviewer and mutable artifacts, and hands off explicitly.
 
 ## When to reach for it
 
@@ -16,17 +16,17 @@ You invoke this by typing `/to-tickets` — the [agent](https://www.aihero.dev/a
 | Nothing is decided yet | [grill-with-docs](https://aihero.dev/skills-grill-with-docs), then [to-spec](https://aihero.dev/skills-to-spec) |
 | A [wayfinder](https://aihero.dev/skills-wayfinder) map has cleared | [to-spec](https://aihero.dev/skills-to-spec) first, to collapse the map, then `/to-tickets` |
 
-Tickets that `to-tickets` produced are agent-ready by construction. Don't run [triage](https://aihero.dev/skills-triage) over them — triage is for work that arrived from someone else.
+Tickets that `to-tickets` produced are already classified for their configured route and gate, so do not run [triage](https://aihero.dev/skills-triage) over them. Only unblocked autonomous tickets are agent-ready; specialist, HITL/creative, blocked, deferred, integration, and awaiting-verification tickets retain those states.
 
 ## Prerequisites
 
-`to-tickets` publishes into a tracker, so [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) must have configured one for this repo, along with the triage-label vocabulary. Either kind works: a real tracker like GitHub or Linear, or local markdown files under `.scratch/`, which is supported out of the box.
+`to-tickets` needs the configured tracker, routing/readiness vocabulary, and ownership/evidence adapters. For game work it reads [game-development](https://aihero.dev/skills-game-development) so source constraints, protected ambiguity, representative conditions, shared artifacts, and open experiments survive the split.
 
 ## Tracer bullets, not layers
 
 A **horizontal** slice ships one layer of the change. Nothing works until every layer has landed, and each ticket's acceptance criteria have to reach into work that another ticket owns. A **vertical** slice — the tracer bullet — ships one thin path through all the layers at once, so it is verifiable alone and owns everything it grades.
 
-This is the rule people break most often, and the consequences are well documented. One team ran a 26-ticket stack sliced by layer — corpus, producer, aggregator, selector — and got roughly twenty agent runs per closed ticket, about three quarters of them rework. Their own post-mortem traced every failure class back to the horizontal slicing rather than to the implementations.
+Owner boundaries are not the same as horizontal product slicing. A runtime ticket and a world/content ticket can be separately owned while both block a representative integration/play gate. What matters is that no ticket claims an outcome another owner or later evidence must supply.
 
 Two things happen before anything is published. `to-tickets` looks for prefactoring — "make the change easy, then make the easy change" — and orders that work first. Then it presents the breakdown as a numbered list and quizzes you on it: is the granularity right, are the blocking edges real, should anything merge or split. Nothing reaches the tracker until you approve, and that quiz is the place to push back.
 
@@ -39,7 +39,7 @@ The edges are the point of the artifact. They read two ways depending on the tra
 | Local markdown | Text in one file per ticket under `.scratch/<feature>/issues/<NN>-<slug>.md`, numbered blockers-first | Top to bottom, by hand |
 | A real tracker (GitHub, Linear) | Native blocking links, or sub-issues where the tracker has them | Any ticket whose blockers are done is on the **frontier** and can be grabbed |
 
-The edges live in the ticket either way. The medium only decides whether anything can act on them in parallel. `to-tickets` produces the artifact; running it — one session at a time, or a fleet — is your job, not the skill's.
+Edges include both logical prerequisites and mutable-artifact conflicts. Tickets that touch the same map/scene, Blueprint/visual script, material, data/source asset, project settings, or shared decision file cannot occupy the parallel frontier without explicit lock/claim and handoff.
 
 ## The wide-refactor exception
 
@@ -52,6 +52,8 @@ One shape breaks the tracer-bullet rule. A **wide refactor** is a single mechani
 - **Contract** — delete the old form once no caller remains, in a ticket blocked by every migrate batch.
 
 Where even the batches can't stay green alone, they share an integration branch and all block a final integrate-and-verify ticket. Green is promised only there.
+
+Editor/content migrations use the owning tool: recovery and exclusive ownership, referencer/dependency inventory, native move/reparent/rename, redirector/import/reference repair, intentional save-set review, then editor load, runtime, cook/package/build, and target validation as material.
 
 ## Common questions
 
@@ -73,20 +75,21 @@ They did, and that was a bug — a single shared file also raced when parallel a
 **It kept truncating when it tried to read my spec.**
 A very large spec can outgrow what a tracker issue serves back cleanly, and there is no local copy to fall back on — the agent then burns [tool calls](https://www.aihero.dev/ai-coding-dictionary/tool-call) re-fetching chunks and never reaches the end. Don't [clear](https://www.aihero.dev/ai-coding-dictionary/clearing) or [compact](https://www.aihero.dev/ai-coding-dictionary/compaction) between `/to-spec` and `/to-tickets`. Run them in the same context window and the spec never has to be fetched back at all.
 
-**The acceptance criteria graded nothing — some passed before any work was done.**
-The template asks for criteria and says nothing about whether they can fail, so this happens. Three shapes recur: a criterion already true at the base commit, a criterion that can only be satisfied by work another ticket owns, and one that restates the request rather than deriving from the artifact. Vertical slicing prevents most of it — a slice that delivers behaviour which didn't exist before is red at the base commit by construction — but the check is worth doing by hand. For each criterion, name the observation that would show it false, and confirm it fails at the commit the implementer starts from.
+**The acceptance criteria graded nothing—some passed before any work was done.**
+Reject them during the quiz. Every criterion names an observation that can fail at the ticket baseline and evidence this ticket owns, or explicitly belongs to its integration gate. Feel, visual/audio, performance, network, package, and target claims name representative conditions and accepting authority.
 
 **The tickets are published. How do I actually run them?**
-The skill stops at the artifact, and there is no auto-dispatch mode. Dispatch is manual: look at the board, count the tickets with no open blockers, and open that many agent sessions. One ticket per fresh context, cleared between them. Be aware that [implement](https://aihero.dev/skills-implement) does not reliably close or check off the ticket when it finishes, on GitHub or in local markdown, so the ticket's state is yours to update.
+Use the configured durable session/worker/queue adapter. Start only frontier tickets whose logical blockers and artifact conflicts are clear, and route each to its named owner. [implement](https://aihero.dev/skills-implement) reconciles acceptance evidence and updates the work item to completed, ready-for-review, or blocked; creative/specialist/integration gates remain with their named authority.
 
 ## It's working if
 
-- Every ticket has an answer to "what can I demo when this is done?" — and the answer is behaviour, not a layer.
+- The set has a player/user-visible tracer; each ticket has an independently verifiable owner-bounded outcome or explicitly feeds its integration gate.
 - The list comes back to you numbered, with a "Blocked by" line on each, before anything is published.
 - The ticket at the top has no blockers and can be started immediately.
-- Nothing in a ticket body is a file path or a line number, except a snippet a prototype produced.
+- Exact shared artifact identities appear only where ownership, locking, reproduction, or evidence needs them; incidental source paths/line numbers do not.
 - Each ticket reads like something a fresh session could finish without you in the room.
 - Prefactoring, where it found any, is at the front of the order rather than mixed into feature tickets.
+- Autonomous, specialist, HITL/creative, blocked, deferred, and awaiting-verification states remain distinct, and the parent spec never enters the execution frontier.
 
 ## Where it fits
 

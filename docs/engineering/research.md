@@ -1,8 +1,8 @@
 ## What it does
 
-`research` answers a question by reading the sources that own the answer, then leaves a cited Markdown file in the repo. It works only from **[primary sources](https://www.aihero.dev/ai-coding-dictionary/primary-source)** — official docs, source code, specs, first-party APIs — and follows every claim back to the source that owns it, so it will not repeat a blog post's account of an API when the API's own docs are reachable.
+`research` answers a bounded question by matching each claim to the source that can own it, then leaves one cited artifact in the project's configured research location. Versioned official docs/specs/source own documented behavior; executed project evidence owns local behavior; original or contractually approved material owns canon; actual licenses and platform-holder sources own obligations. Credible papers, technical talks, and postmortems may support labeled practice claims.
 
-It does not answer you in the conversation. The output is a file, written where the repo already keeps such notes, with a link on each claim. That is the point: a document you can react to, hand to another agent, or throw away, rather than an answer that vanishes when the [session](https://www.aihero.dev/ai-coding-dictionary/session) ends.
+Its defining constraint is the separation of **documented**, **observed**, **inferred**, and **unresolved** truth. A vendor page can document support; it cannot prove that support in this project configuration, content set, build, or target. Each load-bearing claim records its truth class, version/revision/platform scope, access date, and verifiable citation.
 
 ## When to reach for it
 
@@ -12,37 +12,39 @@ Reach for it when the next step is *finding something out* from outside the work
 
 | What you need | Reach for |
 | --- | --- |
-| An external fact a decision is waiting on | `research` |
+| A bounded external fact, version, source/canon, license, platform, or practice question | `research` |
 | A decision made *with* you, by interview | [grilling](https://aihero.dev/skills-grilling) |
 | A durable architecture decision, written into `CONTEXT.md` and ADRs | [grill-with-docs](https://aihero.dev/skills-grill-with-docs) |
-| To find out whether an approach works in your codebase | [prototype](https://aihero.dev/skills-prototype) |
+| To find out whether documented behavior works in this project | Research the contract, then route the smallest empirical question to [prototype](https://aihero.dev/skills-prototype) or [diagnosing-bugs](https://aihero.dev/skills-diagnosing-bugs) |
 | A plan too big to hold in one session | [wayfinder](https://aihero.dev/skills-wayfinder) |
 
 The line between `research` and `grill-with-docs` is the **shelf life of what comes back**. Research produces short-lived assets — what this library's auth mechanism does as of this week. An ADR records a decision you keep. If what you are producing is a decision rather than a fact, you are [grilling](https://www.aihero.dev/ai-coding-dictionary/grilling), not researching.
 
 ## Delegated legwork
 
-The defining move is that the reading runs as a **background agent**. You keep working; it goes off, follows each claim to its primary source, writes one Markdown file, and reports back. Research is legwork you delegate, not thinking you outsource — you get a document to grill, plan, or design against, and you still make the call.
+Reading may run through exactly one approved, inspectable worker/session adapter so you can keep working. The worker may not redelegate. If the runtime cannot provide a durable visible result, the caller researches directly. Research is legwork you may delegate, not a decision you outsource.
 
-The delegation is unguarded, and the background agent can spawn a further background agent of its own. This is the skill's best-documented rough edge.
+Before reading, the run states the decision, exact scope, versions/platforms, stopping criterion, and what research will not establish. That bound prevents both endless reading and broad reports that miss the deciding fact.
 
-Where the file lands is decided by the repo, not by the skill: it matches whatever convention already exists for notes, and if there is none it picks somewhere sensible and tells you where. It writes one file per run.
+Where the artifact lands follows the project's location and retention policy. Repository storage is only for shared durable context; transient or restricted work belongs in the configured tracker, knowledge base, or local research area with a durable pointer. Time-sensitive findings carry review/expiry conditions.
 
 ## Common questions
 
-**It spawned a second research agent — is that meant to happen?**
+**Can the research worker spawn another worker?**
 
-No. This is an open bug, [issue #530](https://github.com/mattpocock/skills/issues/530). The skill tells its caller to spin up a background agent but does not restrict the agent type, so the agent it spawns is a `general-purpose` one that holds the `Agent` tool and the same instructions — and fires them again. One reporter measured a single research task costing roughly 450k [tokens](https://www.aihero.dev/ai-coding-dictionary/token) across three overlapping runs, with the duplicate finishing half an hour later entirely out of view. It reproduces outside Claude Code too; the same nesting was confirmed in Codex with GPT-5.6-sol. There is no shipped fix. Users have patched their own installed copy with a line telling an agent that is already a [subagent](https://www.aihero.dev/ai-coding-dictionary/subagent) to do the work itself, which helps but is instruction-level, not structural. Watch your background task list after invoking, and stop the duplicate.
-
-The opposite failure exists as well: if your own global instructions forbid an agent from re-delegating work, the background agent will politely decline the task and the skill quietly does nothing.
+No. The workflow requires exactly one owner and explicitly forbids redelegation. The runtime adapter can use a top-level session, queue, background worker, or direct execution, but completion must return one inspectable artifact and one evidence-backed handoff.
 
 **Where should the file live — and should I commit it?**
 
-The skill puts the file where the repo already keeps notes and does not have an opinion beyond that. The community one is fairly settled: ADRs are kept, research files are not. The sharpest version of it, from a Discord thread on exactly this question: "ADRs yes. Everything else archive or delete after done. It otherwise becomes cruft of work and can poison future repo reads if you've drifted away from the spec/research." A research file records what was true on the day it was written, so a stale one is worse than none. On balance these artifacts don't really belong in git, and there is no canonical home for them — people use Obsidian, a separate knowledge repo, or the issue tracker instead.
+Follow the project policy. Commit only research intended as shared durable context. Otherwise archive or delete it after the decision and leave a pointer from the work item. Version-sensitive reports are dated and name when they must be reviewed; stale unscoped research is worse than no research.
 
-**What counts as a "high-trust" primary source, and who decides?**
+**What counts as an authoritative source?**
 
-The [model](https://www.aihero.dev/ai-coding-dictionary/model) does. The skill names the *kinds* of source that qualify — official docs, source code, specs, first-party APIs — and there is no allowlist, no domain gate, and no verification pass. This was the loudest objection when the skill was first proposed and it has never been answered publicly: "Five research subagents pointed at junk just gives you five confident wrong answers faster. How are you gating what counts as high-trust sources?" The mitigation you actually have is the citation on each claim. Follow two or three of them. If they land on a summary of the thing rather than the thing, the run failed at its one job.
+The claim decides. API contracts prefer versioned official docs/specs/source; project behavior requires executed project evidence; canon follows the approved authority order; obligations follow actual licenses or platform-holder material; practice may use labeled credible secondary evidence. Conflicts stay visible. Critical or disputed facts quote exact source wording.
+
+**How are confidential platform or licensed sources handled?**
+
+The artifact summarizes the decision-useful fact and stores an authorized pointer. It never copies secrets, NDA text, licensed assets, or sensitive telemetry into chat or a public repository, and records provenance/redistribution constraints for third-party material.
 
 **Does a later session reuse what an earlier run found?**
 
@@ -54,7 +56,7 @@ You can, and a two-line prompt saying exactly that was the practice this skill r
 
 **When does it stop reading?**
 
-There is no stopping criterion in the skill, and this shows up as two complaints that look opposite but are the same gap: agents that go far too deep, and agents that cover a topic broadly while missing the one specific detail that mattered. One practitioner put it as "deep-research skills are a bit too deep sometimes. And telling an agent to research usually results in missing crucial details." Scoping is on you. A narrow, answerable question — one API, one behaviour, one version claim — comes back far better than "research X".
+The run defines one before reading. It stops when the bounded question can be answered at the required confidence, every load-bearing claim has an authority/truth class, source conflicts and unknowns are explicit, and any necessary empirical project check is named.
 
 **`/wayfinder` created research tickets — do I resolve those myself?**
 
@@ -62,11 +64,11 @@ No, it now fires them for you. In the unreleased changes since v1.1, a charting 
 
 ## It's working if
 
-- Your own session keeps going. If you are sitting watching it read, the delegation didn't happen.
-- Exactly one new background task appears. A second one with a near-identical name is the nesting bug.
-- One new Markdown file shows up, in the folder the repo already uses for notes, and the agent tells you the path.
-- Every claim in it carries a link, and following two at random lands you on an official doc, a spec, or the actual source file — not on someone's write-up of it.
-- You can make the decision you were stuck on from the file alone, without going back to the sources yourself.
+- The exact question, decision, scope, versions/platforms, and stopping criterion appear before the findings.
+- Exactly one owner produces one artifact at the configured durable location; no recursive delegation occurs.
+- Every load-bearing claim names its authority, truth class, version/configuration scope, and verifiable citation.
+- Documented support remains distinct from project-observed behavior, with the needed prototype/diagnosis evidence linked or left explicit.
+- Restricted material is summarized safely, provenance/licensing constraints are recorded, and time-sensitive findings carry retention/review conditions.
 
 ## Where it fits
 

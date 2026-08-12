@@ -1,8 +1,8 @@
 ## What it does
 
-`code-review` reviews the diff between `HEAD` and a fixed point you name — a commit, a branch, a tag, `main`, `HEAD~5` — along two axes. **Standards** asks whether the code follows how this repo writes code. **Spec** asks whether the code does what the originating issue or [spec](https://www.aihero.dev/ai-coding-dictionary/spec) asked for. Each axis runs in its own [sub-agent](https://www.aihero.dev/ai-coding-dictionary/subagent) so neither sees the other's reasoning.
+`code-review` reviews an explicitly pinned work surface—a committed comparison, staged or working changes, pull request, changelist, shelf, or equivalent—along two independent axes. **Standards** asks whether each reviewable artifact follows applicable project practice. **Spec** asks whether the demonstrated work does what the originating issue or [spec](https://www.aihero.dev/ai-coding-dictionary/spec) asked for. An **Artifact coverage** table makes everything the text reviews could not inspect visible.
 
-The two axes are never merged and never re-ranked. The report ends with a worst issue *per axis* and refuses to name a single winner across them, because a change can pass one axis and fail the other: code that follows every convention while implementing the wrong thing passes Standards and fails Spec; code that does exactly what the [ticket](https://www.aihero.dev/ai-coding-dictionary/ticket) asked while breaking the repo's conventions does the reverse. A blended verdict lets the passing axis hide the failing one.
+The two axes are never merged or re-ranked. Independent reviewers run through the active runtime adapter, their findings are re-verified, and coverage records each material artifact as reviewed, blocked, or not reviewable in the pass. A change cannot receive a whole-surface pass while material coverage is missing.
 
 ## When to reach for it
 
@@ -10,18 +10,19 @@ Type `/code-review`, or the agent reaches for it automatically when you ask to r
 
 | Your situation | Reach for |
 | --- | --- |
-| A diff exists and you want to know if it is built right *and* is the right thing | `code-review` |
+| A reviewable source-control surface exists and you want to know if it is built right *and* is the right thing | `code-review` |
+| Mixed source, editor packages, content, profiles, builds, or target evidence | `code-review` for axes and coverage, plus owning-tool/specialist review |
 | You want bugs hunted in the diff — null paths, races, off-by-one | Claude Code's own built-in review, not this one (see the name clash below) |
 | Nothing is written yet and you want it written test-first | [tdd](https://aihero.dev/skills-tdd) |
 | A whole spec needs building, review included | [implement](https://aihero.dev/skills-implement), which calls this skill itself |
 | The whole codebase has drifted, not one diff | [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) |
 | Something is broken and you do not know why | [diagnosing-bugs](https://aihero.dev/skills-diagnosing-bugs) |
 
-You must supply the fixed point. If you do not, the skill asks for one rather than guessing; it then checks the ref resolves and the diff is non-empty before spawning anything, so a typo'd branch name fails in front of you instead of inside two sub-agents.
+You must identify the intended surface. For Git branch review that includes a fixed point; work-in-progress review must explicitly name staged and/or working changes. The skill verifies the intended work is present before dispatch, so a bad ref, empty surface, or wrong changelist fails early.
 
 ## Prerequisites
 
-The Standards axis needs nothing. It reads whatever the repo documents (`CODING_STANDARDS.md`, `CONTRIBUTING.md`, and the like) and falls back on a built-in baseline when the repo documents nothing.
+The Standards axis reads the guidance applicable to changed artifacts: code/framework conventions and, where relevant, engine lifecycle/serialization, content, naming/folder/import, accessibility/localization, platform, and performance rules. Canonical framework patterns override generic smells.
 
 The Spec axis needs a spec to exist and be findable. It looks in this order:
 
@@ -30,20 +31,22 @@ The Spec axis needs a spec to exist and be findable. It looks in this order:
 3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch or feature name.
 4. Asking you.
 
-Step 1 depends on `docs/agents/issue-tracker.md`, which [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) writes. Without it the axis still works if you hand it a path. With no spec at all, the Spec sub-agent is skipped and the report says "no spec available" rather than inventing requirements.
+Spec discovery through commit/work-item references depends on `docs/agents/issue-tracker.md`, which [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) writes. Without it the axis still works if you hand it a path. With no spec at all, the Spec reviewer is skipped and the report says "no spec available" rather than inventing requirements.
 
 ## The two axes
 
 | | Standards | Spec |
 | --- | --- | --- |
 | Question | Is it built right? | Is it the right thing? |
-| Reads | The repo's documented standards, plus the smell baseline | The originating issue or spec |
-| Reports | Documented breaches (can be hard), and smells (always judgement calls) | Missing or partial requirements, scope creep, requirements implemented wrongly |
-| Every finding cites | The standards file and the rule, or the named smell plus the hunk | The line of the spec |
+| Reads | Applicable project/framework standards, artifact evidence, plus the smell baseline | The originating issue/spec plus acceptance evidence |
+| Reports | Documented breaches (can be hard), and smells (always judgement calls) | Missing/partial requirements, scope creep, unsupported or wrong claims |
+| Every finding cites | The standards source and artifact/hunk | The spec line and artifact/evidence inspected |
 
 A generic review skill that does not know your standards is the thing this design is trying to avoid — it flags what is deliberate in your codebase and misses the invariants your codebase actually depends on. So the repo's own documentation is the [primary source](https://www.aihero.dev/ai-coding-dictionary/primary-source) on the Standards axis, and **the repo always overrides**.
 
-The **smell baseline** is the floor underneath it: twelve Fowler code smells from _Refactoring_ ch.3 — Mysterious Name, Duplicated Code, Feature Envy, Data Clumps, Primitive Obsession, Repeated Switches, Shotgun Surgery, Divergent Change, Speculative Generality, Message Chains, Middle Man, Refused Bequest. Each is a labelled heuristic ("possible Feature Envy"), never a hard violation, and each is stated as *what it is* → *how to fix*, so a finding arrives with a move attached rather than a complaint. Anything your linter already enforces is skipped by both axes.
+The **smell baseline** remains a floor for mergeable source, not a law above engine contracts. Reflection, serialization, generated code, canonical lifecycle/inheritance, components, and data-oriented patterns are evaluated against their framework and project authority before a generic refactor is proposed.
+
+Artifact coverage is not a third opinion axis. It is the inventory that prevents a binary path, screenshot, test result, or profiler claim from disappearing between Standards and Spec. Each row names the owner, review method, evidence inspected, and status.
 
 ## Common questions
 
@@ -51,9 +54,9 @@ The **smell baseline** is the floor underneath it: twelve Fowler code smells fro
 
 This is the most reported problem with the skill, and it is not fixed. Claude Code ships its own `/code-review`, which does something different — it hunts bugs in the diff, where this one checks spec compliance and repo standards. Installing this library means one of them wins, and which one wins depends on how you installed. Via the plugin marketplace, everything is aliased under a `mattpocock-skills:` prefix and the built-in becomes hard to reach at the unqualified name; via a plain skills install, the local file wins and this skill shadows the built-in. One clean answer is to remove Claude Code's built-in skills entirely: a large [context](https://www.aihero.dev/ai-coding-dictionary/context) saving, and the collision stops mattering. The shadowing itself is arguably a Claude Code [harness](https://www.aihero.dev/ai-coding-dictionary/harness) bug — a skill author should be free to name a skill anything — so the other answer is to rename the local copy. Editing the frontmatter or renaming the directory gets undone by `npx skills update`; the durable workaround reported by users is to fork the skill to a new name and drop `code-review` from the managed set, keeping a note of the commit you forked from so you can re-sync by hand.
 
-**Its sub-agents keep invoking `/code-review` again and spawn more agents.**
+**Can the independent reviewers recursively invoke this skill?**
 
-Known open bug, reproduced by several people and in more than one harness. The Standards and Spec prompts do not forbid delegation, so a sub-agent can rediscover the skill and fan out again — one report reached 50-plus agents. The fix people have applied on forks is one line appended to both sub-agent briefs: "Do not invoke `/code-review` or spawn additional agents — perform this review directly." Some prefer to handle it at the harness level so every skill inherits the guard. Neither is in the shipped skill yet. If you run this unattended, watch the agent count.
+No. Both reviewer briefs now prohibit invoking `/code-review` or delegating again. The runtime adapter can use top-level sessions, a durable queue, subagents, or direct sequential contexts, but it must preserve independence, inspectability, and exactly one owner per review.
 
 **Should I run it in the same [session](https://www.aihero.dev/ai-coding-dictionary/session) that wrote the code?**
 
@@ -65,7 +68,7 @@ Both work, and the skill does not decide for you. Per-ticket keeps each diff sma
 
 **Can I trust the findings?**
 
-Not without checking. Sub-agent output is a hypothesis, not evidence — one team reported a dozen breaking changes that prose-based reviews had waved through. The skill aggregates the two reports verbatim or lightly cleaned rather than re-verifying each claim against the files, so a finding can cite the wrong location or overstate an impact. Read the citation on each finding before acting on it. That every finding is required to carry one — a standards rule, a smell plus its hunk, or a spec line — is what makes this checkable at all.
+Reviewer output remains a hypothesis, but the aggregator now re-verifies every finding against its cited source and selected artifact before reporting it. You should still inspect high-impact citations; an experiential, performance, network, package, or target claim is only as strong as the evidence included in the pinned surface.
 
 **Why does it find new problems every single time I run it?**
 
@@ -73,15 +76,16 @@ Because fixes create new surface, and because the judgement-call half of the Sta
 
 **Does it review my uncommitted work?**
 
-No. It diffs `<fixed-point>...HEAD`, three-dot, which is measured from the merge-base and excludes staged and working-tree changes. If `implement` has not made an interim commit, the work about to be committed is invisible to the review. Commit first, then review, then amend or add a fixup.
+Yes, when you explicitly select staged changes, the working tree, or both. The skill records `git diff --cached`, `git diff`, and `git status --short` only for that requested surface. It never silently folds unrelated dirty work into a branch review.
 
 ## It's working if
 
-- It refuses to start on a bad ref or an empty diff, before any sub-agent is spawned.
-- The report arrives as two separate blocks under `## Standards` and `## Spec`, not one merged list.
+- It refuses to start on a bad identity, empty surface, or mismatch between requested and observed work before reviewers run.
+- The report arrives as separate `## Standards`, `## Spec`, and `## Artifact coverage` blocks.
 - Every Standards finding names either a rule in one of your repo's files or one of the twelve smells, with the hunk quoted; every Spec finding quotes a line of the spec.
 - The closing summary gives a worst issue per axis and declines to pick an overall winner.
 - With no spec available, the Spec block says so instead of listing requirements it inferred from the code.
+- Every material artifact has an owner, review method, evidence, and honest coverage status; uncovered material prevents a whole-change pass.
 
 ## Where it fits
 

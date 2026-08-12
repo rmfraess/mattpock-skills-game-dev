@@ -8,17 +8,20 @@ It writes no test at a seam you have not agreed to first. Before any test exists
 
 Type `/tdd`, or the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) reaches for it automatically when a task fits — building a feature or fixing a bug test-first, or when you say "red-green-refactor".
 
-Reach for it when there is a concrete behaviour to build, with an input and an observable output, and you want tests that survive a refactor.
+Reach for it when there is a concrete behavior with an independent oracle and a stable seam, and you want tests that survive a refactor. A test must be able to falsify the claim; copying proposed implementation values into assertions does not qualify.
 
 | Your situation | Where to go |
 | --- | --- |
 | A behaviour with defined inputs and outputs — business logic, a request/response contract, a transformation, validation | `tdd` |
+| Deterministic game rules, invariants, save transforms, protocol contracts, or seeded simulation | `tdd`, with higher engine evidence only where material |
+| Feel, visuals, animation, audio, spatial quality, or a real-time budget | Test deterministic subcontracts only; [game-development](https://aihero.dev/skills-game-development) selects play, review, or profile evidence |
+| Engine lifecycle, serialization, world wiring, replication, package, or target behavior | Focused engine/scenario evidence outside the inner loop, after fast contracts go green |
 | The behaviour isn't pinned down yet | [to-spec](https://aihero.dev/skills-to-spec), which also agrees the test seams before any code is written |
 | The question is really the shape of the interface, not the tests | [codebase-design](https://aihero.dev/skills-codebase-design) |
 | You have a [spec](https://www.aihero.dev/ai-coding-dictionary/spec) or [tickets](https://www.aihero.dev/ai-coding-dictionary/ticket) and want the whole build run for you | [implement](https://aihero.dev/skills-implement), which drives `tdd` per ticket |
-| Config, wiring, glue, type annotations, straight CRUD delegation | Nothing here fits well — see the open gap below |
+| Config, wiring, glue, type annotations, or work with no independent oracle | Use the artifact-appropriate implementation loop rather than manufacturing a test |
 
-That last row is a real hole, not a stylistic preference. The skill decides *where* the seams go; nothing in it decides *whether* a change is worth the loop at all. Run it on a change with no independent source of truth to assert against and you get a test that restates the implementation — the tautological anti-pattern the skill itself warns about, arrived at from the other direction. It is [issue #746](https://github.com/mattpocock/skills/issues/746) and it is open. Until it closes, that judgement is yours or your `CLAUDE.md`'s.
+The applicability gate makes that judgment explicit. “Green” means the tested contract holds; it does not promote a unit seam into proof of editor integration, player experience, performance, networking, packaging, or target behavior.
 
 ## Prerequisites
 
@@ -32,7 +35,7 @@ Three words carry this skill.
 
 **Vertical slice.** One seam, one test, one minimal implementation, then repeat — the first cycle being a **tracer bullet** that proves a single path end to end. The opposite is horizontal slicing: all the tests first, then all the code. Bulk tests verify *imagined* behaviour, they check the shape of things rather than what a user does, and they commit you to a test structure before you understand the implementation.
 
-**Pre-agreed seam.** A seam is the public boundary you observe behaviour at without reaching inside. The rule is absolute: no test at an unconfirmed seam. In the full chain the seams are agreed earlier, during [to-spec](https://aihero.dev/skills-to-spec) — "`/tdd` is told to only work at pre-agreed test seams, `/code-review` checks that only agreed-upon test seams were used." Invoked on its own, `tdd` asks you directly.
+**Pre-agreed seam.** A seam is the public boundary you observe behavior at without reaching inside. No test is written at an unconfirmed seam. The proposal names what each seam catches and misses, and preserves canonical engine lifecycle, serialization, reflection, component, scene/package, and platform boundaries instead of flattening them into generic modules.
 
 The three anti-patterns it is written to prevent:
 
@@ -42,7 +45,7 @@ The three anti-patterns it is written to prevent:
 | Tautological | The expected value is computed the way the code computes it, so the test passes by construction. Expected values have to come from somewhere else — a known-good literal, a worked example, the spec. |
 | Horizontal slicing | A batch of tests landed before any implementation. |
 
-Mocks are for system boundaries only — external APIs, time, randomness, sometimes the filesystem or the database. Not your own modules.
+Mocks and controlled adapters are for true system boundaries—external APIs, time, randomness, filesystems, expensive or unavailable engine/platform services, transport, and device APIs—when they preserve the public contract. They cannot stand in for lifecycle, physics, world, replication, content, or target behavior the claim depends on.
 
 ## Common questions
 
@@ -58,9 +61,9 @@ This is the most-reported friction with the skill ([issue #607](https://github.c
 
 It happens. One user pushed the [model](https://www.aihero.dev/ai-coding-dictionary/model) on it and got an unusually honest answer: "I knew the skill said 'one test at a time, watch it fail for the right reason' — I read it. I just defaulted to my normal habit." The skill is written to live with this. No instruction makes an agent comply 100% of the time, and forcing the point harder restricts the agent's creativity for little gain — the loop is worth running even when it is not followed strictly, because the results are still better overall. If strict adherence matters for a particular slice, watch the run rather than trusting the skill to enforce it.
 
-**Should it write browser or end-to-end tests first?**
+**Should it run slow engine, multiplayer, package, or target tests in every cycle?**
 
-Usually not, and the skill will not stop it. A user reported the agent writing a Playwright test first, then burning a long loop re-running it and concluding the *test* was broken for a feature that did not exist yet. Configure this in your `CLAUDE.md`. Browser tests are slow enough that the red-green feedback loop stops paying for itself; declare in your repo's `CLAUDE.md` that they are written after the behaviour works.
+Usually not. Keep the inner red-green loop at the fastest faithful deterministic seam. Run focused engine integration at deliberate checkpoints, then slower end-to-end, multi-instance, package, or target scenarios after the contract is green. If a slow scenario is the smallest faithful seam, accept the slower loop and say why.
 
 **Does `/tdd` replace `/implement`, or the course's `/do-work`?**
 
@@ -82,6 +85,8 @@ No. Run against one ticket, it will happily propose work that belongs to a sibli
 - Expected values in assertions are literals you can trace to the spec, not values recomputed the way the code computes them.
 - Renaming an internal function breaks nothing in the suite.
 - Mocks appear only at external boundaries — the payment API, the clock — and never around your own modules.
+- The run records every material editor, play, profile, network, package, target, or human-evaluation risk that remains after green.
+- No automated assertion is presented as proof of feel, visual/audio quality, spatial composition, or a runtime budget it did not observe.
 
 ## Where it fits
 
@@ -91,4 +96,4 @@ No. Run against one ticket, it will happily propose work that belongs to a sibli
 grill-with-docs → to-spec → to-tickets → implement → code-review
 ```
 
-[to-spec](https://aihero.dev/skills-to-spec) agrees the test seams up front, [implement](https://aihero.dev/skills-implement) drives `tdd` per ticket, and [code-review](https://aihero.dev/skills-code-review) checks afterwards that only the agreed seams were used — and owns the refactoring `tdd` no longer does. Its other neighbour is [codebase-design](https://aihero.dev/skills-codebase-design), the shared source of the seam and deep-module vocabulary `tdd` speaks. You can also reach for it on its own, whenever there is a concrete behaviour to build and no full spec in play. When you are unsure which skill fits your situation, [ask-matt](https://aihero.dev/skills-ask-matt) routes you.
+[to-spec](https://aihero.dev/skills-to-spec) agrees test seams and higher evidence up front, [implement](https://aihero.dev/skills-implement) drives `tdd` for deterministic contracts, [game-development](https://aihero.dev/skills-game-development) keeps higher game evidence distinct, and [code-review](https://aihero.dev/skills-code-review) checks the resulting surface and coverage. [codebase-design](https://aihero.dev/skills-codebase-design) remains the shared seam/deep-module vocabulary. [ask-matt](https://aihero.dev/skills-ask-matt) routes uncertain cases.

@@ -1,22 +1,33 @@
 # Skill mechanics
 
-The skill-specific branch of [`writing-for-agents`](SKILL.md): what changes when the document is a skill — frontmatter, the invocation choice, and router skills. Everything else about writing it is the universal reference in `SKILL.md`.
+The skill-specific branch of [`writing-for-agents`](SKILL.md): what changes when the document is a skill — frontmatter, invocation policy, runtime adapters, and router skills. Everything else remains in `SKILL.md`.
 
-## Invocation
+## Invocation is a runtime contract
 
-Two choices, trading the two loads:
+The portable distinction is between:
 
-- A **model-invoked** skill keeps a `description`, so the agent can fire it autonomously — and other skills can reach it. You can still type its name: model-invocation always _includes_ user reach; a description only ever adds agent discovery, never removes the human's. The description is the skill's top-level context pointer, forced to stay loaded at all times — permanent context load in exchange for discoverability. A model-invoked skill whose content is all reference is also one home for shared reference: another skill can invoke it, so reference needed by several skills lives in one place. Mechanics: omit `disable-model-invocation`, and write a model-facing description carrying the trigger branches (the pointer-writing rules in `SKILL.md` apply in full).
-- A **user-invoked** skill strips the description from the agent's reach: only the human typing its name can invoke it, and no other skill can. Zero context load, but it spends cognitive load — you are the index that must remember it exists. Mechanics: set `disable-model-invocation: true`; the `description` becomes human-facing — a one-line summary, trigger lists stripped.
+- **Implicitly invokable** — the runtime may select the skill from its trigger pointer without the human naming it.
+- **Explicit-only** — the human or an orchestrating workflow must name the skill.
 
-Pick model-invocation only when the agent must reach the skill on its own, or another skill must. If it only ever fires by hand, make it user-invoked and pay no context load.
+The exact metadata is a runtime adapter, not a universal skill property. In this repo's currently supported adapters:
 
-Shared reference that two user-invoked skills both need can live in neither — with no descriptions, neither can fire the other. Push it to a plain file outside the skill system: external reference any skill can point at.
+- **Claude Code:** `disable-model-invocation: true` makes a skill explicit-only; omitting it permits model invocation.
+- **Codex:** `agents/openai.yaml` uses `policy.allow_implicit_invocation: false` for explicit-only skills.
+
+Verify the behavior against the runtime's current documentation and installed adapter. Do not assume a description is always injected, that one skill can invoke another, or that explicit invocation has the same syntax everywhere.
+
+Choose implicit invocation only when the agent must discover the skill autonomously or shared policy must be reachable from several flows. Its description is a permanent context pointer and must carry the real trigger branches. Choose explicit-only when human judgement should select the workflow and pay the cognitive load instead.
+
+Shared reference needed by several flows should have one authoritative home. It may be an implicitly invokable reference skill when every supported runtime can reach it, or a plain referenced file when runtime invocation semantics cannot guarantee that reach.
 
 ## Splitting by invocation
 
-The invocation cut of splitting (the sequence cut lives in `SKILL.md`): split off a model-invoked skill when you have a distinct leading word that should trigger it on its own — a trigger word you actually use in your prompts — or another skill must reach it. You pay context load for the new always-loaded description, so that independent reach has to be worth it.
+Split off an implicitly invokable skill when it has an independent trigger the runtime can detect, or when several flows need the same policy. Validate that benefit in every supported adapter; otherwise disclose a plain reference and avoid pretending one runtime's behavior is portable.
 
 ## Router skills
 
-When user-invoked skills multiply past what you can remember, that piled-up cognitive load is cured by a **router skill**: one user-invoked skill that names the others and when to reach for each, so the human has one skill to remember instead of many. It can only hint, never fire them: user-invoked skills have no description, so nothing but the human can reach them.
+When explicit-only skills multiply past what a human can remember, use a **router skill** that names them and their decision boundaries. A router recommends; whether it can dispatch depends on the runtime. Keep dispatch mechanics in an adapter rather than claiming that every harness exposes slash commands, hidden subagents, or skill-to-skill invocation.
+
+## Workers and context boundaries
+
+Likewise, “subagent” is not a portable execution primitive. Some runtimes expose hidden child contexts, others top-level sessions, queues, or no delegation. Write the portable requirement—independent scope, explicit ownership, durable inputs, inspectable progress, evidence-backed handoff—and let the active runtime adapter choose the mechanism.

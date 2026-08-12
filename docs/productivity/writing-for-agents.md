@@ -1,6 +1,6 @@
 ## What it does
 
-`writing-for-agents` is the reference you write agent-facing documents against — a skill, an `AGENTS.md` / `CLAUDE.md`, a [spec](https://www.aihero.dev/ai-coding-dictionary/spec), a runtime prompt, a README, any doc an [agent](https://www.aihero.dev/ai-coding-dictionary/agent) reads. The packaging differs; the writing does not: the same levers make each one predictable, so the agent takes the same *process* every run rather than producing the same output.
+`writing-for-agents` is the reference you write agent-facing documents against — a skill, an instruction file, a [spec](https://www.aihero.dev/ai-coding-dictionary/spec), a runtime prompt, a README, any doc an [agent](https://www.aihero.dev/ai-coding-dictionary/agent) reads. Packaging and invocation mechanics differ by runtime; the writing levers remain portable. They make the agent take the same *process* every run rather than produce the same output.
 
 Its default move is deletion, not explanation. Ask an agent to write instructions for another agent and it spends most of its words explaining what the [model](https://www.aihero.dev/ai-coding-dictionary/model) already knows — every one of those lines is a **no-op**, paying [context](https://www.aihero.dev/ai-coding-dictionary/context) and changing no behaviour. This reference is the lens that finds them, which is why it earns its keep at least as often on a document you already have as on a blank file.
 
@@ -23,11 +23,12 @@ Once you think in these two loads, most authoring decisions — split or don't, 
 
 ## The levers
 
-- **[Context pointers](https://www.aihero.dev/ai-coding-dictionary/context-pointer)** — the reference held in context that names out-of-context material and encodes when to reach it. A skill description and an `AGENTS.md` line naming a doc are the same object; the pointer's *wording*, not its target, decides how reliably the agent reaches through it.
+- **[Context pointers](https://www.aihero.dev/ai-coding-dictionary/context-pointer)** — contracts that name out-of-context material and encode when and how to reach it, its authority and scope, and any access or version expectations. The pointer's *wording*, not its target, decides how reliably the agent reaches through it.
 - **Information hierarchy** — the ladder from in-file step, to in-file reference, to disclosed reference behind a pointer. **[Progressive disclosure](https://www.aihero.dev/ai-coding-dictionary/progressive-disclosure)** is the move down that ladder so the top stays legible.
-- **Completion criteria** — the clarity and demand of each step's done-condition, and the **legwork** that demand drives; the defence against **premature completion**.
+- **Completion criteria** — claim-specific done-conditions and evidence layers. Text, tests, editor validation, play sessions, profiles, network runs, packages, and target-device runs prove different things; a lower layer cannot imply a higher one.
 - **Leading words** — a compact concept already in the model's pretraining (*tight*, *red*, *tracer bullet*) that the agent thinks with while running the document. It anchors twice: execution in the body, invocation in the pointer.
-- **Pruning** — single source of truth, relevance, and the no-op test applied sentence by sentence, against **duplication**, **sediment** and **sprawl**.
+- **Pruning** — single source of truth, environment observability, relevance, and a no-op test across supported models, harnesses, tasks, and hazard branches, against **duplication**, **sediment** and **sprawl**.
+- **Game-development documents** — apply [game-development](https://aihero.dev/skills-game-development) to preserve player intent, authority, mutable-asset ownership, native production language, and credible evidence while keeping engine commands in project adapters.
 
 ## Common questions
 
@@ -44,13 +45,13 @@ You can, and it will produce something verbose. Left alone the model explains wh
 Agents told to "streamline" optimise for length, because length is the thing they can see. The no-op test is behavioural, not aesthetic: delete the line and ask whether the agent's behaviour changed. When a sentence fails, delete the whole sentence rather than trim words from it — and settle a disagreement about it by running the document, not by arguing.
 
 **How do I know when it's done?**
-When it works, and you can no longer find duplication, sediment or no-ops. There is no automated eval here; the check is a manual run plus the failure-mode vocabulary as a diagnostic. When a document misbehaves, that vocabulary is also the repair kit — name the failure mode first, then fix that.
+When it works across the models, harnesses, task branches, and safety branches you claim to support, and you can no longer find duplication, sediment or no-ops. Use traceable scenario runs where possible and manual review where the outcome is experiential or editor-visible. A successful happy path does not prove a guardrail is redundant.
 
-**Should this live in `CLAUDE.md` or somewhere else?**
-Ask which load you want to pay. `CLAUDE.md` loads into every [session](https://www.aihero.dev/ai-coding-dictionary/session) unconditionally; material behind a pointer costs only the pointer's own line until it fires. Anything that applies in one context out of ten is paying context load the nine other times.
+**Should this live in the runtime's instruction file or somewhere else?**
+Ask which load you want to pay. A canonical instruction file loads into every [session](https://www.aihero.dev/ai-coding-dictionary/session) that consumes it; material behind a pointer costs only the pointer's own line until it fires. Anything that applies in one context out of ten is paying context load the nine other times. Keep standing behavior model-neutral and make harness-specific instruction files thin adapters where possible.
 
-**Do I need to rewrite my documents for each new model?**
-Mostly no, and over-fitting to one model is its own trap. Updating for a new model is usually another no-op pass rather than a rewrite.
+**Do I need to rewrite my documents for each new model or harness?**
+Usually not. Keep shared behavior model-neutral and isolate invocation, delegation, instruction-file, or tool mechanics in runtime adapters. Re-run the supported scenario matrix before pruning or changing shared guidance; one model's default is not universal.
 
 **My skill only works on the exact task I built it from.**
 The common route — do the work once, then have the agent write it up as a skill — over-indexes on that one run, and the exemplars come out too specific. Keep the run as evidence, then abstract deliberately: strip what belonged to that repo and those files, and write for the class of task.
@@ -64,6 +65,8 @@ No — finding the word that packs the most behaviour into the fewest [tokens](h
 - You can point at a leading word and watch it doing work in more than one place.
 - Nothing is stated twice, in any form. Duplication is the most reliable sign a document was never tested.
 - Reference that only one branch needs sits behind a pointer rather than in the main file.
+- Mutation steps carry their immediate guardrail and stop condition even when the detailed policy is referenced elsewhere.
+- Completion language names the evidence actually observed instead of promoting tests or text inspection into editor, play, performance, network, package, or target claims.
 
 ## Where it fits
 

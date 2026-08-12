@@ -24,14 +24,19 @@ Recommendation shape: *"Define a port at the seam, implement an HTTP adapter for
 
 Third-party services (Stripe, Twilio, etc.) you don't control. The deepened module takes the external dependency as an injected port; tests provide a mock adapter.
 
+### 5. Engine/platform owned
+
+Lifecycle callbacks, reflection/serialization, world state, physics, rendering, editor transactions, content packages, device/SDK APIs, and platform services. Preserve the native contract. Introduce a seam only where ownership, lifecycle, failure isolation, portability, or a faithful controlled substitute justifies it; verify the rest through the minimal owning-tool/runtime evidence.
+
 ## Seam discipline
 
-- **One adapter means a hypothetical seam. Two adapters means a real one.** Don't introduce a port unless at least two adapters are justified (typically production + test). A single-adapter seam is just indirection.
+- **Require a real variation reason.** Two production/test adapters are strong evidence. A single production adapter can still be justified by lifecycle inversion, ownership, failure isolation, portability, platform callback shape, or a faithful controlled substitute. State the reason.
 - **Internal seams vs external seams.** A deep module can have internal seams (private to its implementation, used by its own tests) as well as the external seam at its interface. Don't expose internal seams through the interface just because tests use them.
 
 ## Testing strategy: replace, don't layer
 
-- Old unit tests on shallow modules become waste once tests at the deepened module's interface exist — delete them.
+- Replace obsolete tests only after the new evidence catches the same failure classes; do not delete engine/editor/content/network/profile/cook/target checks merely because a cleaner unit seam exists.
 - Write new tests at the deepened module's interface. The **interface is the test surface**.
 - Tests assert on observable outcomes through the interface, not internal state.
 - Tests should survive internal refactors — they describe behaviour, not implementation. If a test has to change when the implementation changes, it's testing past the interface.
+- Preserve minimal integration scenarios for lifecycle, serialization/editor wiring, content references, authority/replication, performance budgets, package/cook, and target behavior when material.

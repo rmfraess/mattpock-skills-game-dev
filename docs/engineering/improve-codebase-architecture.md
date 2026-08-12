@@ -1,10 +1,10 @@
 ## What it does
 
-`improve-codebase-architecture` surveys a codebase for **deepening opportunities** — places where a shallow module (an interface nearly as complex as the thing it hides) could become a deep one — writes them up as a self-contained HTML report, and then [grills](https://www.aihero.dev/ai-coding-dictionary/grilling) you through whichever one you pick.
+`improve-codebase-architecture` surveys a product for **deepening opportunities** — places where a shallow module (an interface nearly as complex as the thing it hides) could become a deep one — writes them up as a self-contained offline HTML report, and then [grills](https://www.aihero.dev/ai-coding-dictionary/grilling) you through whichever one you pick. For games, the survey follows a player-visible system across source, visual scripting, content, editor tooling, networking, builds, and target evidence instead of mistaking text files for the whole product.
 
-It never changes the code. The whole run produces one HTML file in your OS temp directory and a conversation; the refactor itself happens later, in a separate [session](https://www.aihero.dev/ai-coding-dictionary/session), through the normal build flow. That is what makes it a survey rather than a refactoring tool, and it is why the skill is worth running on a codebase you are not ready to touch yet.
+It never changes production source or content. The survey produces one offline HTML file in your OS temp directory and a conversation; the refactor itself happens later, in a separate [session](https://www.aihero.dev/ai-coding-dictionary/session), through the normal build flow. That is what makes it a survey rather than a refactoring tool, and it is why the skill is worth running on a project you are not ready to touch yet.
 
-Two filters keep the report from becoming generic cleanup advice. Every candidate has to pass the **deletion test** — would removing this module concentrate complexity behind a smaller interface, or just spread it across callers? Only the "concentrates" cases earn a card. And unless you point it at a specific area, it reads recent commit history first and biases the scan toward paths that are actively changing, on the grounds that a deepening in code nobody touches is a refactor you will never cash in.
+Two filters keep the report from becoming generic cleanup advice. Every candidate has to pass the **deletion test** after required framework/engine shells are understood — would removing this module concentrate complexity behind a smaller interface, or break lifecycle, serialization, authoring, networking, or platform obligations? And unless you point it at a specific area, it weighs available production evidence: source churn, recurring bugs, content/import failures, editor friction, profiler captures, cook/build failures, and ownership hazards. A report may conclude **No architecture change now** when migration cost and risk are not justified.
 
 ## When to reach for it
 
@@ -27,15 +27,15 @@ Where it is confusable with siblings:
 
 ## Prerequisites
 
-None to run it. It reads `CONTEXT.md` and any ADRs in `docs/adr/` if they exist, and speaks in your domain's own nouns when they do — a candidate reads as "deepen the Order intake module," not "refactor the FooBarHandler."
+None to run it. It reads `CONTEXT.md` and any ADRs in `docs/adr/` if they exist, and speaks in your domain's own nouns when they do — a candidate reads as "deepen the Order intake module," not "refactor the FooBarHandler." Game work also loads the configured player-facing, source/canon, engine, content, ownership, budget, and evidence authorities through `game-development`.
 
-It writes in two places. The report goes to `<tmpdir>/architecture-review-<timestamp>.html`, outside the repo. During the grilling loop it will add or sharpen terms in `CONTEXT.md`, creating that file if it does not exist, and offer to record a rejected candidate as an ADR so a future run does not re-suggest it.
+It writes in two places. The self-contained report goes to `<tmpdir>/architecture-review-<timestamp>.html`, outside the repo, with inline CSS and accessible inline diagrams. During the grilling loop it will add or sharpen terms in `CONTEXT.md`, creating that file if it does not exist, and offer to record a rejected candidate as an ADR so a future run does not re-suggest it.
 
 ## Depth, and the report that hunts for it
 
 The skill turns on one idea: **depth**. A deep module puts a lot of behaviour behind a small, stable interface. A shallow one leaks its implementation through an interface nearly as wide as the code beneath it. The report is a hunt for shallowness — pure functions extracted only for testability while the real bugs live in how they are called (no **locality**), modules leaking across their **seams**, a concept you cannot understand without opening five files — and a proposal for the deepening that fixes it.
 
-Each candidate is a card: the files involved, the friction, a plain-English solution, the benefit stated in terms of **locality** and **leverage**, a before/after diagram, and a strength badge.
+Each candidate is a card: the player/user-visible system, every material source/editor/content/build surface, the friction, a plain-English solution, benefits and trade-offs in **locality**, **leverage**, authorability and budgets, an owner/migration plan, layered evidence, a before/after diagram, and a strength badge.
 
 | Badge | What it means for you |
 | --- | --- |
@@ -43,11 +43,11 @@ Each candidate is a card: the files involved, the friction, a plain-English solu
 | `Worth exploring` | Plausible deepening, but the payoff depends on where the code is going next. |
 | `Speculative` | Surfaced for completeness. Most of these are safe to ignore. |
 
-The report ends with a **Top recommendation** — the one it would tackle first — and then the skill stops and asks which candidate you want to explore. Nothing has been decided at that point, and no code has moved.
+The report ends with a **Top recommendation** — the one it would tackle first, or **No architecture change now** with the evidence and risk reason — and then the skill stops and asks which candidate you want to explore. Nothing has been decided at that point, and no production artifact has moved.
 
 ## What happens after you pick one
 
-Picking a candidate starts a [grilling](https://aihero.dev/skills-grilling) session over it: constraints, what sits behind the seam, which tests survive, what the deepened interface should look like. The output of that session is a decision, not a diff. From there the normal flow applies — take the decision into [to-spec](https://aihero.dev/skills-to-spec), then [to-tickets](https://aihero.dev/skills-to-tickets), then [implement](https://aihero.dev/skills-implement).
+Picking a candidate starts a [grilling](https://aihero.dev/skills-grilling) session over it: constraints, what sits behind the seam, which evidence survives, what the intentional interfaces should look like, and how mutable artifacts migrate safely. The output is a decision, not a diff. Runtime, rendering, world/content, and creative/source questions stay with their named owners. From there the normal flow applies — take the decision into [to-spec](https://aihero.dev/skills-to-spec), then [to-tickets](https://aihero.dev/skills-to-tickets), then [implement](https://aihero.dev/skills-implement).
 
 ## Common questions
 
@@ -57,7 +57,7 @@ Yes — say so when you invoke it ("don't grill me, just show the report"). This
 
 **The report opened as unstyled raw HTML with no diagrams. What happened?**
 
-The report loads Tailwind and Mermaid from CDNs, so it needs network access when you open it, and it breaks silently when something blocks those scripts. The filed case was a security hook demanding SRI hashes: the agent added them, the CDN served different bytes to the browser than to the `curl` used to compute the hash, and the browser blocked the script. Offline and locked-down environments hit the same wall. The agent cannot see this, because it never renders the page. The workaround is to ask for inline CSS and hand-built SVG diagrams instead of the CDN scaffold. This is an open issue and a real rough edge.
+The current report is self-contained: inline CSS, inline SVG/HTML diagrams, no remote scripts, fonts, or stylesheets. The skill checks the saved structure and opens an available local preview before handoff. If no render surface is available, it reports structural checks only rather than claiming visual verification. An unstyled page now indicates a malformed or stale report and should fail the delivery check.
 
 **It gave me twelve candidates. Do I work through them in the same session or start a new one?**
 
@@ -77,11 +77,11 @@ Partly. It is strong on big existing codebases lacking consistent structure, and
 
 **Will it ever tell me the codebase is fine?**
 
-Rarely, and you should know that going in. The skill is built to output findings, so the framing pushes it toward producing candidates rather than concluding that nothing is wrong. The strength badges are the defence — a report where everything is `Speculative` is the skill telling you it found nothing, in the only way it knows how.
+Yes. **No architecture change now** is an explicit result when the available evidence does not justify migration cost, production risk, or ownership disruption. The report states why rather than manufacturing speculative work.
 
 **Does it work in Codex or another harness?**
 
-Partially. The exploration step names Claude Code's `Agent` tool with `subagent_type=Explore` directly, so a [harness](https://www.aihero.dev/ai-coding-dictionary/harness) without that tool may skip the parallel exploration rather than substitute its own. The skill still runs; the scan is just less thorough. A harness-neutral rewrite has been proposed but is not merged.
+Yes, provided the runtime can inspect the project and write the report. Exploration uses one accountable context through the runtime's configured visible-session, durable-queue, worker, or direct adapter; it does not depend on a vendor-named agent primitive or recursive delegation. The evidence available to that runtime still bounds the scan, and those limitations belong in the report.
 
 **How do I actually implement deep modules in TypeScript?**
 
@@ -90,10 +90,13 @@ There is no good answer shipped with the skill. The recurring request is for a `
 ## It's working if
 
 - The candidates name your domain's concepts, not invented class names — "the Order intake module," not "the FooBarHandler."
-- The candidates cluster in files you have edited recently, not in dormant corners of the repo.
-- No code changed during the run. The only new file is the HTML report in your temp directory.
+- Each candidate accounts for every material source, editor, content, build, network, and target surface—not only files visible in a text diff.
+- The owner, migration/recovery risk, player/user trade-offs, and evidence layers are explicit.
+- No production artifact changed during the survey. The only new file is the offline HTML report in your temp directory.
 - It stops after the report and asks which candidate you want, rather than continuing on its own.
-- Each card explains the payoff as locality or leverage, and says which tests get simpler — not just "this is cleaner."
+- Each card explains the payoff as locality or leverage and names the material verification—not just "this is cleaner."
+- The top result may be **No architecture change now**, with a concrete reason.
+- The report passes structural checks and records whether a local render was actually inspected.
 - Rejecting a candidate for a durable reason gets you an offer to record an ADR, so the next run does not re-suggest it.
 
 ## Where it fits

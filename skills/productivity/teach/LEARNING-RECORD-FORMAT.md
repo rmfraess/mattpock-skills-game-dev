@@ -7,19 +7,43 @@ They are the teaching equivalent of ADRs: they capture non-obvious lessons, key 
 ## Template
 
 ```md
+---
+status: active
+evidence-level: guided-practice
+conditions: {workspace/tool/version/platform conditions under which this was demonstrated}
+---
+
 # {Short title of what was learned or established}
 
 {1-3 sentences: what was learned (or what prior knowledge was established), and why it matters for future sessions.}
+
+## Evidence
+{What the user recalled, produced, ran, reviewed, or explained. Link a compact artifact/capture when useful.}
+
+## Remaining limits
+{What has not been demonstrated, including production or fidelity conditions not yet met.}
 ```
 
-That is the whole format. A learning record can be a single paragraph. The value is recording _that_ this is now known and _why_ it changes what to teach next — not in filling out sections.
+Keep the record compact. The value is recording _what evidence supports the claim_, under which conditions, and why it changes what to teach next—not in filling out sections.
+
+## Evidence levels
+
+Record the highest level actually demonstrated:
+
+1. `exposure` — encountered the material; no understanding claim.
+2. `self-report` — the user reports prior knowledge or confidence.
+3. `retrieval` — recalls or explains the idea without the lesson in view.
+4. `guided-practice` — succeeds with prompts or step-by-step support.
+5. `independent-practice` — succeeds unaided in the safe practice environment.
+6. `production-ready` — succeeds independently under stated representative production conditions with the required review/evidence.
+
+Coverage never advances the level. Production readiness is conditional, not a universal label.
 
 ## Optional sections
 
 Only include these when they add genuine value. Most records won't need them.
 
 - **Status** frontmatter (`active | superseded by LR-NNNN`) — useful when an earlier understanding turns out to be wrong and is replaced.
-- **Evidence** — how the user demonstrated the understanding (a question answered, an exercise completed, prior experience cited). Useful when the claim might be revisited.
 - **Implications** — what this unlocks or rules out for future sessions. Worth recording when non-obvious.
 
 ## Numbering

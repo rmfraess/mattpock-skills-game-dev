@@ -6,12 +6,16 @@ Mock at **system boundaries** only:
 - Databases (sometimes - prefer test DB)
 - Time/randomness
 - File system (sometimes)
+- Engine/platform services that are expensive, nondeterministic, unavailable, or outside the tested contract
+- Network transport, online services, device APIs, clocks, and seeded randomness where a controlled adapter preserves behavior
 
-Don't mock:
+Don't mock merely to force isolation:
 
 - Your own classes/modules
 - Internal collaborators
-- Anything you control
+- Canonical lifecycle, serialization, physics, world, replication, or content behavior the claim depends on
+
+Use test worlds/scenes, controlled clocks, seeded inputs, recorded events, fakes, or adapters when they preserve the public contract. A mocked call count is not evidence that an engine or network behavior occurred.
 
 ## Designing for Mockability
 

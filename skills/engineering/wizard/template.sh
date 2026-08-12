@@ -7,6 +7,7 @@
 # it. Author the per-step stages below the marker.
 
 set -euo pipefail
+umask 077
 
 # ──────────────────────────────────────────────────────────────────────────
 # Wizard library — delightful, consistent UX. Identical across every wizard.
@@ -88,6 +89,16 @@ confirm() {
   [[ "$reply" =~ ^[Yy] ]]
 }
 
+# confirm_exact "warning" "phrase" — high-consequence gate. The action runs
+# only when the human types the displayed phrase exactly.
+confirm_exact() {
+  local warning="$1" phrase="$2" reply=""
+  warn "$warning"
+  printf '  %sType exactly:%s %s\n  > ' "$BOLD" "$RESET" "$phrase"
+  read -r reply || true
+  [[ "$reply" == "$phrase" ]]
+}
+
 # _existing KEY — current value of KEY in ENV_FILE, if any.
 _existing() {
   [[ -f "$ENV_FILE" ]] || return 1
@@ -138,6 +149,27 @@ write_env() {
   printf '  %s✓ wrote%s %s → %s\n' "$GREEN" "$RESET" "$key" "$ENV_FILE"
 }
 
+# write_secret_env KEY VALUE — refuse to put a secret in a tracked file. In a
+# git repo, the destination must already be ignored. Outside git, the file is
+# still created with private permissions where the platform supports them.
+write_secret_env() {
+  local key="$1" value="$2"
+  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    if git ls-files --error-unmatch "$ENV_FILE" >/dev/null 2>&1; then
+      warn "$ENV_FILE is tracked — refusing to write secret $key"
+      SKIPPED+=("secret $key (choose an approved private destination)")
+      return 0
+    fi
+    if ! git check-ignore -q "$ENV_FILE" 2>/dev/null; then
+      warn "$ENV_FILE is not ignored — refusing to write secret $key"
+      SKIPPED+=("secret $key (ignore $ENV_FILE or choose a secret store)")
+      return 0
+    fi
+  fi
+  write_env "$key" "$value"
+  chmod 600 "$ENV_FILE" 2>/dev/null || true
+}
+
 # set_secret NAME VALUE — set a GitHub Actions repo secret via gh. Falls back
 # to a warning (and records it) if gh is unavailable or unauthenticated.
 set_secret() {
@@ -169,7 +201,11 @@ set_var() {
 # finish — clear, then a closing summary of everything configured.
 finish() {
   _clear
-  printf '\n%s%s  ✓ Setup complete%s\n' "$BOLD" "$GREEN" "$RESET"
+  if (( ${#SKIPPED[@]} )); then
+    printf '\n%s%s  ⚠ Setup requires follow-up%s\n' "$BOLD" "$YELLOW" "$RESET"
+  else
+    printf '\n%s%s  ✓ Setup complete%s\n' "$BOLD" "$GREEN" "$RESET"
+  fi
   (( ${#WRITTEN_ENV[@]} ))    && note "wrote ${#WRITTEN_ENV[@]} value(s) to $ENV_FILE: ${WRITTEN_ENV[*]}"
   (( ${#WRITTEN_SECRET[@]} )) && note "set ${#WRITTEN_SECRET[@]} GitHub secret(s): ${WRITTEN_SECRET[*]}"
   if (( ${#SKIPPED[@]} )); then
@@ -197,7 +233,7 @@ ask STRIPE_PUBLISHABLE_KEY "Paste the publishable key:"
 step "Click 'Reveal test key' on the Secret key row, then copy it."
 ask_secret STRIPE_SECRET_KEY "Paste the secret key:"
 write_env STRIPE_PUBLISHABLE_KEY "$STRIPE_PUBLISHABLE_KEY"
-write_env STRIPE_SECRET_KEY "$STRIPE_SECRET_KEY"
+write_secret_env STRIPE_SECRET_KEY "$STRIPE_SECRET_KEY"
 set_secret STRIPE_SECRET_KEY "$STRIPE_SECRET_KEY"   # CI needs this one
 # ──────────────────────────────────────────────────────────────────────────
 

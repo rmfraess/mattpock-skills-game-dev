@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Human-in-the-loop reproduction loop.
+# Human-in-the-loop reproduction loop (one Bash adapter).
 # Copy this file, edit the steps below, and run it.
 # The agent runs the script; the user follows prompts in their terminal.
 #
@@ -10,10 +10,11 @@
 #   step "<instruction>"          → show instruction, wait for Enter
 #   capture VAR "<question>"      → show question, read response into VAR
 #
-# At the end, captured values are printed as KEY=VALUE for the agent to parse.
+# At the end, non-secret observations are printed as KEY=VALUE for the agent to parse.
 #
 # `capture` prints its value back to the terminal, where the agent reads it — so
-# capture observations, and leave signing in to the user as a `step`.
+# capture observations and sanitized artifact paths only. Leave authentication,
+# secrets, licensed/NDA material, and sensitive telemetry with the user.
 
 set -euo pipefail
 
@@ -31,14 +32,17 @@ capture() {
 
 # --- edit below ---------------------------------------------------------
 
-step "Open the app at http://localhost:3000 and sign in."
+step "Prepare the recorded build, scene/content, device, settings, and reproduction conditions. Authenticate privately if required."
 
-capture ERRORED "Click the 'Export' button. Did it throw an error? (y/n)"
+capture CONDITIONS "Summarize the non-secret build/scene/device/settings/network/cache conditions:"
 
-capture ERROR_MSG "Paste the error message (or 'none'):"
+capture REPRODUCED "Run the exact trigger. Did the reported symptom occur? (y/n)"
+
+capture OBSERVATION "Describe the sanitized observation, timestamp, and capture/trace path (or 'none'):"
 
 # --- edit above ---------------------------------------------------------
 
 printf '\n--- Captured ---\n'
-printf 'ERRORED=%s\n' "$ERRORED"
-printf 'ERROR_MSG=%s\n' "$ERROR_MSG"
+printf 'CONDITIONS=%s\n' "$CONDITIONS"
+printf 'REPRODUCED=%s\n' "$REPRODUCED"
+printf 'OBSERVATION=%s\n' "$OBSERVATION"

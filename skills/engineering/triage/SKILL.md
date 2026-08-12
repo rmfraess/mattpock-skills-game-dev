@@ -36,6 +36,14 @@ Five **state** roles:
 - `ready-for-human` — needs human implementation
 - `wontfix` — will not be actioned
 
+These are the portable minimum, not permission to collapse every production state into `ready-for-agent`. Read the configured tracker for richer states or routing fields. At minimum, record separately:
+
+- **Gate:** unblocked, blocked by a named prerequisite, deferred until a trigger, or awaiting verification
+- **Route/owner:** autonomous worker, named specialist, human/creative HITL, or maintainer
+- **Evidence authority:** who can accept the result and what representative evidence is required
+
+Use `ready-for-agent` only when the item is unblocked, safely delegable through an available adapter, and no human/creative/specialist gate remains. If the tracker lacks an honest state, keep `needs-triage`/`needs-info` and explain the routing gap rather than applying a false ready label.
+
 For a PR, the same states read against the attached code: `ready-for-agent` means a brief is attached and an agent should take the next step on the diff; `ready-for-human` means it's ready for a human to merge.
 
 Every triaged issue should carry exactly one category role and one state role. If state roles conflict, flag it and ask the maintainer before doing anything else.
@@ -67,27 +75,27 @@ Show counts and a one-line summary per item. Let the maintainer pick.
 
 ## Triage a specific issue or PR
 
-1. **Gather context.** Read the full issue or PR (body, comments, labels, author, dates; for a PR, the diff too). Parse any prior triage notes so you don't re-ask resolved questions. Explore the codebase using the project's domain glossary, respecting ADRs in the area. Run two checks against the codebase: (a) **redundancy** — search for an existing implementation of the requested behavior by domain concept (not just the request's wording), and report where you looked. If found, it's an already-implemented `wontfix` (step 5). (b) **prior rejection** — read `.out-of-scope/*.md` and surface any that resembles this request.
+1. **Gather context.** Read the full issue or PR—body, every comment, labels, author, dates, prior triage state, and for a PR the complete selected diff/artifact inventory. Do this per item before any bulk mutation. Explore all material project surfaces using the qualified glossary and applicable authorities. Run two checks: (a) **redundancy**—confirm the behavior is actually wired from input/data/config through source/visual scripting/editor content to representative runtime/player-visible behavior before calling it implemented; (b) **prior rejection**—surface matching durable rejections, but never treat a temporary milestone deferral as permanent scope memory.
 
 2. **Recommend.** Tell the maintainer your category and state recommendation with reasoning, plus a brief codebase summary relevant to the request — including whether it's already implemented. Wait for direction.
 
-3. **Verify the claim.** Before any grilling, check that the claim holds up. For a bug, reproduce it from the reporter's steps. For a PR, confirm the diff does what it claims — check it out, run the relevant tests or commands. Report what happened: confirmed (with code path), failed, or insufficient detail (a strong `needs-info` signal). A confirmed verification makes a much stronger agent brief.
+3. **Verify the claim.** Before grilling, apply the smallest faithful evidence protocol. Preserve dirty work and obtain permission/recovery before checking out a PR that can mutate generated/editor artifacts. Verify source plus owning-tool/runtime surfaces where material: a visual/content report in the named representative scene; performance with hardware, build, map, settings, path, capture/profiler, and target conditions; network with topology/roles; mixed PRs with separate textual and editor/runtime coverage. Lore/source conflicts route to approved source/adaptation authority. Report confirmed, contradicted, or insufficient detail with evidence and remaining coverage.
 
 4. **Grill (if needed).** If the request needs fleshing out, run the `/grilling` and `/domain-modeling` skills together — grill it into shape a round of questions at a time, sharpening domain terms and updating `CONTEXT.md`/ADRs inline as decisions land.
 
 5. **Apply the outcome:**
-   - `ready-for-agent` — post an agent brief comment ([AGENT-BRIEF.md](AGENT-BRIEF.md)).
-   - `ready-for-human` — same structure as an agent brief, but note why it can't be delegated (judgment calls, external access, design decisions, manual testing).
+   - `ready-for-agent` — only when the gate/route test above passes; post an agent brief comment ([AGENT-BRIEF.md](AGENT-BRIEF.md)).
+   - `ready-for-human` — same structure, with the named human/creative/specialist authority, why the available automation cannot own it, and required evidence.
    - `needs-info` — post triage notes (template below).
    - `wontfix` — close, with the comment depending on *why*:
      - **Already implemented** — the change already exists in the codebase. Point to where it lives; do **not** write to `.out-of-scope/` (that KB is for *rejected* requests, not built ones).
      - **Rejected (bug)** — polite explanation, then close.
-     - **Rejected (enhancement)** — write to `.out-of-scope/`, link to it from a comment, then close ([OUT-OF-SCOPE.md](OUT-OF-SCOPE.md)).
+     - **Rejected (enhancement)** — write to `.out-of-scope/` only for a durable scope decision, link it, then close ([OUT-OF-SCOPE.md](OUT-OF-SCOPE.md)). A temporary milestone deferral stays in the tracker with its trigger.
    - `needs-triage` — apply the role. Optional comment if there's partial progress.
 
 ## Quick state override
 
-If the maintainer says "move #42 to ready-for-agent", trust them and apply the role directly. Confirm what you're about to do (role changes, comment, close), then act. Skip grilling. If moving to `ready-for-agent` without a grilling session, ask whether they want to write an agent brief.
+If the maintainer requests a direct state change, trust their authority but still report the gate, route/owner, and evidence status before acting. Confirm role changes, comment, and closure. Skip grilling. A direct `ready-for-agent` override still needs an agent brief and explicit acknowledgement of any unresolved blocker or human/specialist gate; never hide those conditions behind the label.
 
 ## Needs-info template
 

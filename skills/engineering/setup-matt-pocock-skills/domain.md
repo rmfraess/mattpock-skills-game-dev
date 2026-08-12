@@ -1,18 +1,18 @@
 # Domain Docs
 
-How the engineering skills should consume this repo's domain documentation when exploring the codebase.
+How the engineering skills should consume this project's authoritative language and decision documentation when exploring the codebase, content, or editor-owned state.
 
 ## Before exploring, read these
 
-- **`CONTEXT.md`** at the repo root, or
-- **`CONTEXT-MAP.md`** at the repo root if it exists — it points at one `CONTEXT.md` per context. Read each one relevant to the topic.
-- **`docs/adr/`** — read ADRs that touch the area you're about to work in. In multi-context repos, also check `src/<context>/docs/adr/` for context-scoped decisions.
+- **The authoritative glossary or context docs recorded by setup** — commonly `CONTEXT.md`, or `CONTEXT-MAP.md` pointing at context-specific files.
+- **The recorded decision locations** — commonly `docs/adr/`, but preserve an established project layout.
+- **For game projects, `docs/agents/game-development.md`** — follow its pointers to vision, design, source/canon, art direction, engine, target, ownership, budget, and evidence authorities.
 
-If any of these files don't exist, **proceed silently**. Don't flag their absence; don't suggest creating them upfront. The `/domain-modeling` skill (reached via `/grill-with-docs` and `/improve-codebase-architecture`) creates them lazily when terms or decisions actually get resolved.
+If optional domain files don't exist, **proceed silently**. Don't suggest creating them upfront. The `/domain-modeling` skill creates language and decision docs lazily when terms or decisions actually get resolved. Missing game authority, ownership, or target evidence is different: surface it when it blocks a safe or truthful claim.
 
 ## File structure
 
-Single-context repo (most repos):
+Single-context layout (common example, not a required path):
 
 ```
 /
@@ -23,7 +23,7 @@ Single-context repo (most repos):
 └── src/
 ```
 
-Multi-context repo (presence of `CONTEXT-MAP.md` at the root):
+Multi-context layout (example):
 
 ```
 /
@@ -44,8 +44,10 @@ When your output names a domain concept (in an issue title, a refactor proposal,
 
 If the concept you need isn't in the glossary yet, that's a signal — either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/domain-modeling`).
 
+For game projects, keep native engine, editor, rendering, animation, audio, level-design, and platform terms intact when they are already precise. Do not replace a production term with generic app vocabulary merely to make the glossary look uniform.
+
 ## Flag ADR conflicts
 
-If your output contradicts an existing ADR, surface it explicitly rather than silently overriding:
+If your output contradicts an existing ADR or recorded vision, canon, art-direction, platform, ownership, or budget decision, surface it explicitly rather than silently overriding:
 
 > _Contradicts ADR-0007 (event-sourced orders) — but worth reopening because…_

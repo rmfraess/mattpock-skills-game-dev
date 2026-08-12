@@ -1,6 +1,6 @@
 ## What it does
 
-`codebase-design` fixes the words you use to design a module: **module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality**. It defines each one precisely, bans the loose substitutes ("component", "service", "API", "boundary"), and states the handful of principles that follow from them.
+`codebase-design` supplies the analytical words used to design a module: **module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality**. It defines each one precisely while preserving native framework and engine names such as Actor Component, engine Module, Blueprint, scene, package, service, or platform API. Those artifacts can be described by their module/interface/seam role without being renamed.
 
 It is a reference, not a process. There is no loop to run, no artifact it produces, no checkpoint where it asks you a question. Every other skill that touches design borrows its vocabulary; on its own it gives you the language and stops. That is the thing to know before you invoke it, because a skill with no process and no stopping rule will improvise one if you point a [session](https://www.aihero.dev/ai-coding-dictionary/session) at it and say "go" — see the questions below.
 
@@ -8,7 +8,7 @@ It is a reference, not a process. There is no loop to run, no artifact it produc
 
 Type `/codebase-design`, or the agent reaches for it automatically when a design task fits.
 
-Reach for it when you already know which code you're redesigning and you need to think about its shape: where the seam goes, how small the interface can get, whether an extraction is earning its keep. It is also what you reach for to settle an argument about what a word means.
+Reach for it when you already know which system you're redesigning and need to think about its shape: where the seam goes, which audiences need distinct interfaces, whether an extraction is earning its keep, and which required lifecycle/serialization/editor shells must remain. It is also what you reach for to settle an argument about what an analytical word means.
 
 Several skills sit close to it. Which one you want depends on what the actual problem is:
 
@@ -24,26 +24,27 @@ Several skills sit close to it. Which one you want depends on what the actual pr
 
 The glossary is the skill. Every term is defined against the others, and each one comes with the word it replaces.
 
-| Term | What it means | Don't say |
+| Term | What it means | Analysis note |
 |---|---|---|
-| **Module** | Anything with an interface and an implementation. Deliberately scale-agnostic — a function, a class, a package, a slice spanning tiers. | unit, component, service |
-| **Interface** | Everything a caller must know to use it correctly: the type signature, plus invariants, ordering constraints, error modes, required config, performance characteristics. | API, signature |
+| **Module** | Anything with an interface and an implementation. Deliberately scale-agnostic — a function, a class, a package, a slice spanning tiers. | Keep `Component`, `Module`, `service`, or other native names when they identify a real framework/engine artifact. |
+| **Interface** | Everything a caller must know to use it correctly: the type signature, plus invariants, ordering constraints, error modes, required config, performance characteristics. | `API` or `signature` may name a narrower native surface; the analytical interface includes the full contract. |
 | **Depth** | Leverage at the interface — how much behaviour a caller or a test can exercise per unit of interface they have to learn. **Deep**: a lot of behaviour behind a small interface. **Shallow**: the interface is nearly as complex as the implementation. | — |
-| **Seam** | Michael Feathers' term: a place you can alter behaviour without editing in that place. It is the *location* of an interface, and where to put it is its own decision, separate from what goes behind it. | boundary |
+| **Seam** | Michael Feathers' term: a place you can alter behaviour without editing in that place. It is the *location* of an interface, and where to put it is its own decision, separate from what goes behind it. | Keep precise domain or engine boundary names; use `seam` for this analytical role. |
 | **Adapter** | A concrete thing satisfying an interface at a seam. Names a role, not a substance — an in-memory fake and a Postgres repo are both adapters. | — |
 | **Leverage** | What callers get from depth: more capability per unit of interface learned. | — |
 | **Locality** | What maintainers get from depth: change, bugs and verification concentrate in one place. Fix once, fixed everywhere. | — |
 
 Depth is deliberately *not* defined as the ratio of implementation lines to interface lines, which is Ousterhout's own definition. That metric rewards padding the implementation. Depth-as-leverage is used instead.
 
-## The four principles
+## The principles
 
 - **Depth is a property of the interface, not the implementation.** A deep module can be built internally from small swappable parts. They just don't surface to callers. A module can have internal seams its own tests use, and one external seam at its interface.
-- **The deletion test.** Imagine deleting the module. If complexity vanishes, it was a pass-through. If it reappears across N callers, it was earning its keep.
-- **The interface is the test surface.** Callers and tests cross the same seam. If you want to test *past* the interface, the module is the wrong shape.
-- **One adapter means a hypothetical seam. Two adapters means a real one.** Don't cut a seam until something actually varies across it. A single-adapter seam is just indirection.
+- **The deletion test.** Imagine deleting the module. If complexity vanishes, it was a pass-through. If it reappears across N callers, it was earning its keep. First account for required reflection, serialization, lifecycle, editor, networking, generated-code, and platform shells.
+- **Interfaces follow audiences.** Runtime callers, editor authoring, save/load, networking, tools, and content pipelines may need intentionally distinct surfaces. One module does not imply one universal interface.
+- **An interface is a test surface, not all evidence.** Deterministic contracts test through stable interfaces; minimal engine, editor/content, play, network, profile, cook/build, and target checks cover other failure classes.
+- **A seam needs a real variation reason.** Multiple adapters are strong evidence. One production adapter can still justify a seam for lifecycle inversion, ownership, failure isolation, portability, platform callbacks, or a faithful controlled substitute.
 
-Two supporting files go further, and the skill reads them on demand rather than up front. [DEEPENING.md](https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/DEEPENING.md) classifies a candidate's dependencies — in-process, local-substitutable, remote-but-owned, true-external — because the category decides how the deepened module gets tested across its seam. [DESIGN-IT-TWICE.md](https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/DESIGN-IT-TWICE.md) spins up parallel [sub-agents](https://www.aihero.dev/ai-coding-dictionary/subagent) to produce three or more radically different interfaces for the same module, then compares them on depth, locality and seam placement.
+Two supporting files go further, and the skill reads them on demand rather than up front. [DEEPENING.md](https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/DEEPENING.md) classifies dependencies — in-process, local-substitutable, remote-but-owned, true-external, and engine/platform-owned — because the category determines the seam and evidence strategy. [DESIGN-IT-TWICE.md](https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/DESIGN-IT-TWICE.md) uses three or more independent runtime-supported design contexts, makes no production edits, and compares alternatives on depth, locality, native-contract fit, authorability, evidence cost, performance, ownership, and seam placement.
 
 ## Common questions
 
@@ -53,7 +54,7 @@ This is the most-asked question about the skill and the skill does not answer it
 
 **I pointed a session at it and it burned 100k [tokens](https://www.aihero.dev/ai-coding-dictionary/token) redesigning things I never asked about.**
 
-Known, and filed as [issue #449](https://github.com/mattpocock/skills/issues/449). The skill is model-invoked and describes itself as vocabulary, but nothing in it hard-stops an agent from treating it as a runnable process. Told to "resume in /codebase-design and drive the open decisions", an agent reached for the most action-shaped content it could find — the parallel sub-agents in `DESIGN-IT-TWICE.md` — re-explored code a previous session had already mapped, and ran a long way before asking anything. None of the guardrails a driver skill has (checkpoints, one question at a time, no auto-advance) are present here, because a reference has none. The workaround is to name a driver skill and let this one sit underneath it: `/grill-with-docs`, `/improve-codebase-architecture` or `/tdd` with `codebase-design` as the vocabulary. The issue is open.
+The reference now hard-stops after supplying vocabulary. Exploration, worker dispatch, document mutation, and implementation require a named driver such as `/grill-with-docs`, `/improve-codebase-architecture`, or `/tdd`. `DESIGN-IT-TWICE.md` also refuses to launch itself. If a session starts redesigning from `/codebase-design` alone, stop it: the reference has been mistaken for a driver.
 
 **Where did `design-an-interface` go? And is there an `/interface-design` skill?**
 
@@ -69,7 +70,7 @@ It does now. For a long time it did not. The inline deep-module notes that used 
 
 **Does the design-it-twice pattern work outside Claude Code?**
 
-Not cleanly. `DESIGN-IT-TWICE.md` says "spawn 3+ sub-agents in parallel using the Agent tool", which is Claude Code's [tool](https://www.aihero.dev/ai-coding-dictionary/tool) by Claude Code's name. The repo ships metadata for other [harnesses](https://www.aihero.dev/ai-coding-dictionary/harness), including Codex, and those may expose nothing under that name — so the parallel-design phase is less portable than the skill's metadata suggests. Tracked in [issue #564](https://github.com/mattpocock/skills/issues/564), open.
+Yes, through the runtime's configured visible-session, durable-queue, worker, or sequential-context adapter. It does not name a vendor tool, permit recursive delegation, or edit production/shared artifacts. Runtimes without parallel contexts can execute the independent briefs sequentially while keeping their inputs and outputs isolated.
 
 **Can I add my own concepts to the glossary — connascence, module secrets, [progressive disclosure](https://www.aihero.dev/ai-coding-dictionary/progressive-disclosure)?**
 
@@ -77,10 +78,12 @@ People have proposed exactly those. [Issue #180](https://github.com/mattpocock/s
 
 ## It's working if
 
-- The design conversation stops producing the words "component", "service" and "boundary", and starts producing "module", "interface" and "seam".
+- The design conversation uses `module`, `interface`, and `seam` analytically without erasing precise framework, engine, domain, or platform names.
 - Someone can point at a proposed extraction and say whether it passes the deletion test, without hedging.
-- A proposed seam comes with a second adapter named, not just the first one.
+- A proposed seam comes with multiple adapters or an explicit lifecycle, ownership, failure-isolation, portability, platform-callback, or faithful-substitute reason.
 - Discussion of an interface covers invariants, ordering and error modes — not only the type signature.
+- Required native shells and distinct runtime/editor/content/network audiences are accounted for.
+- The verification discussion includes material engine, content, play, profile, build, and target evidence instead of treating unit tests as universal.
 - Invoking it does not start a session. If the agent begins reading files and proposing refactors off the back of `/codebase-design` alone, it has mistaken the reference for a driver.
 
 ## Where it fits
