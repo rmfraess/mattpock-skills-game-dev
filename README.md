@@ -22,13 +22,30 @@ The compatibility assessment that motivated these changes is recorded in [`.agen
 > [!NOTE]
 > The official `mattpocock-skills` marketplace plugin and the `mattpocock/skills` installer source provide Matt Pocock's original edition, not this game-development adaptation. Follow the [upstream README](https://github.com/mattpocock/skills#readme) when that is what you want.
 
-Install this adapted fork with the skills installer:
+### Install the game-project baseline
+
+Prerequisites: Git, Node.js 22.20.0 or newer with `npx`, and an agent supported by the [`skills` installer](https://github.com/vercel-labs/skills).
+
+Run this from the game project where you want the skills installed:
 
 ```bash
-npx skills@latest add rmfraess/mattpock-skills-game-dev
+npx skills@latest add rmfraess/mattpock-skills-game-dev --skill setup-matt-pocock-skills game-development
 ```
 
-Choose the skills and supported agents you want. Include `setup-matt-pocock-skills` and `game-development` when configuring a game project.
+The installer detects supported agents or asks you to choose among them, then installs these two skills at project scope. Add other workflow skills from this fork as needed, for example:
+
+```bash
+npx skills@latest add rmfraess/mattpock-skills-game-dev --skill implement prototype code-review
+```
+
+To inspect all discoverable skills before installing anything:
+
+```bash
+npx skills@latest add rmfraess/mattpock-skills-game-dev --list
+```
+
+> [!WARNING]
+> The bare command without `--skill` currently installs every skill the CLI discovers in the repository, including non-promoted `misc` and `in-progress` skills. It is not the recommended installation route for this fork.
 
 To inspect or contribute to the adaptation directly, clone this repository:
 
@@ -38,7 +55,7 @@ git clone https://github.com/rmfraess/mattpock-skills-game-dev.git
 
 ### Configure each project
 
-In your agent, run `/setup-matt-pocock-skills` once per repository. It will:
+In your agent, invoke `setup-matt-pocock-skills` once per repository (for agents with slash commands, `/setup-matt-pocock-skills`). It will:
 
 - Confirm the issue tracker you actually use, independently of where source is hosted
 - Ask you what labels you apply to tickets when you triage them (`/triage` uses labels)

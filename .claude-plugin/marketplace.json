@@ -1,15 +1,15 @@
 {
-  "name": "mattpocock",
+  "name": "rmfraess-game-dev",
   "owner": {
-    "name": "Matt Pocock",
-    "url": "https://www.aihero.dev"
+    "name": "Ronald Fraess",
+    "url": "https://github.com/rmfraess"
   },
-  "description": "Matt Pocock's skills for real engineering, as an installable Claude Code plugin.",
+  "description": "Independent game-development adaptation of Matt Pocock's agent skills.",
   "plugins": [
     {
-      "name": "mattpocock-skills",
+      "name": "mattpocock-skills-game-dev",
       "source": "./",
-      "description": "Matt Pocock's agent skills for real engineering — grilling, spec/ticket flows, TDD, code review, domain modelling and more.",
+      "description": "Game-development adaptation with planning, implementation, evidence, review, and production safeguards.",
       "category": "engineering",
       "keywords": [
         "engineering",

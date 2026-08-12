@@ -1,11 +1,11 @@
 {
-  "name": "mattpocock-skills",
+  "name": "mattpocock-skills-game-dev",
   "version": "1.2.3",
   "private": true,
-  "description": "Matt Pocock's agent skills for real engineering",
+  "description": "Independent game-development adaptation of Matt Pocock's agent skills",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mattpocock/skills"
+    "url": "https://github.com/rmfraess/mattpock-skills-game-dev"
   },
   "license": "MIT",
   "scripts": {

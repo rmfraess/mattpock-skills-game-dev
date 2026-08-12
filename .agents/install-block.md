@@ -1,61 +1,41 @@
-# The canonical install block
+# The canonical install block for this fork
 
-One install story, one wording. `README.md`, `.changeset/*`, and every page under `docs/` must say **this** and nothing else. Change it here first, then propagate.
+This repository is an independent adaptation. The official `mattpocock-skills` marketplace plugin and the `mattpocock/skills` installer source install the upstream edition, not this fork. Do not present either as an installation route for the game-development adaptation.
 
-`mattpocock-skills` is listed in **Claude Code's official marketplace** — configured name `claude-plugins-official`, source repo `anthropics/claude-plugins-official` — which every Claude Code install has out of the box. There is no marketplace to add first. Official Anthropic marketplaces have auto-update enabled by default ([discover-plugins](https://code.claude.com/docs/en/discover-plugins)), so "updates arrive automatically" is a true claim, not a hope.
+## Prerequisites
 
-## Claude Code — the plugin
+- Git
+- Node.js 22.20.0 or newer with `npx`
+- An agent supported by the [`skills` installer](https://github.com/vercel-labs/skills)
 
-<canonical-block name="claude-code">
+## Recommended game-project baseline
 
-```bash
-claude plugins install mattpocock-skills
-```
-
-Or, from inside a session:
-
-```
-/plugin install mattpocock-skills
-```
-
-It's in Claude Code's official marketplace, so there's nothing to add first, and updates arrive automatically.
-
-</canonical-block>
-
-## Codex, and other agents — skills.sh
-
-The plugin is Claude Code only. Everywhere else, [skills.sh](https://skills.sh/mattpocock/skills) copies editable skill files into the project. Use the whole-set form on `README.md`:
-
-<canonical-block name="skills-sh-whole-set">
+Run from the target game project:
 
 ```bash
-npx skills@latest add mattpocock/skills
+npx skills@latest add rmfraess/mattpock-skills-game-dev --skill setup-matt-pocock-skills game-development
 ```
 
-Pick the skills you want, and which coding agents to install them on. **The installer lets you choose which skills to take — make sure `setup-matt-pocock-skills` is one of them.**
-
-</canonical-block>
-
-…and the single-skill form wherever one skill is named on its own. Note that **`docs/` pages are not a consumer of this block**: ai-hero renders the install widget above the body, so a page that writes the commands out duplicates it. See [writing-docs.md](./writing-docs.md).
-
-<canonical-block name="skills-sh-one-skill">
+This installs the project setup skill and the shared game-development discipline. Install additional workflow skills explicitly as needed:
 
 ```bash
-npx skills@latest add mattpocock/skills --skill=<name>
+npx skills@latest add rmfraess/mattpock-skills-game-dev --skill implement prototype code-review
 ```
+
+Inspect all discoverable skills without installing:
 
 ```bash
-npx skills@latest update <name>
+npx skills@latest add rmfraess/mattpock-skills-game-dev --list
 ```
 
-</canonical-block>
+The bare command without `--skill` is not the recommended route: the current CLI installs all discoverable skills, including skills in non-promoted buckets.
 
-`skills@latest` is the pinned spelling in all three. The pages under `docs/` used to carry their own copy of these commands; those blocks are now deleted rather than corrected, because the site renders the install commands itself.
+After installation, invoke `setup-matt-pocock-skills` once in each target project. Agents that expose skills as slash commands use `/setup-matt-pocock-skills`.
 
-## The two routes are exclusive
+## Direct clone
 
-The plugin is a managed, read-only bundle you subscribe to. skills.sh writes files you own and edit. Installing both leaves the user with every skill twice — always say "pick one".
+Cloning is for inspection or contribution; it does not install the skills into an agent:
 
-## Not the install story
-
-`.claude-plugin/marketplace.json` makes the repo its own single-plugin marketplace (`/plugin marketplace add mattpocock/skills`, then `/plugin install mattpocock-skills@mattpocock`). The official listing supersedes it. It is kept as a fallback for installing the repo directly — an unreleased commit, or a fork — and is **not** documented to users.
+```bash
+git clone https://github.com/rmfraess/mattpock-skills-game-dev.git
+```
