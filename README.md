@@ -1,90 +1,53 @@
-<p>
-  <a href="https://www.aihero.dev/s/skills-newsletter">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://res.cloudinary.com/total-typescript/image/upload/v1777382277/skills-repo-dark_2x.png">
-      <source media="(prefers-color-scheme: light)" srcset="https://res.cloudinary.com/total-typescript/image/upload/v1777382277/skill-repo-light_2x.png">
-      <img alt="Skills" src="https://res.cloudinary.com/total-typescript/image/upload/v1777382277/skill-repo-light_2x.png" width="369">
-    </picture>
-  </a>
-</p>
+# Matt Pocock Skills — Game Development Edition
 
-# Skills For Real Engineers
+> [!IMPORTANT]
+> This repository is an independent game-development adaptation of [Matt Pocock's original skills repository](https://github.com/mattpocock/skills). Matt Pocock created and maintains the base skills; this fork modifies them for video-game production and is not the canonical upstream distribution.
 
-[![skills.sh](https://skills.sh/b/mattpocock/skills)](https://skills.sh/mattpocock/skills)
+Use [mattpocock/skills](https://github.com/mattpocock/skills) for the original application-engineering skills, upstream documentation, releases, and installation instructions. Use this repository when you want the same composable workflows adapted for game engines, editor-authored and non-mergeable assets, player-facing experience, real-time constraints, multidisciplinary ownership, builds, and target-platform evidence.
 
-My agent skills that I use every day to do real engineering - not vibe coding.
+## What This Fork Changes
 
-Developing real software—including games—is hard. Approaches like GSD, BMAD, and Spec-Kit try to help by owning the process. But while doing so, they take away your control and make bugs in the process hard to resolve.
+The original application-development paths remain available. This edition adds conditional game-development guidance rather than replacing those paths:
 
-These skills are designed to be small, easy to adapt, and composable. They work with any model. They're based on decades of engineering experience. Hack around with them. Make them your own. Enjoy.
+- a shared [`game-development`](./skills/engineering/game-development/SKILL.md) discipline for player and source authority, artifact ownership, credible risk slices, and claim-appropriate evidence;
+- engine-native prototypes when feel, rendering, physics, animation, audio, networking, streaming, or target hardware determines the answer;
+- recovery and one-owner safeguards for maps, scenes, visual graphs, imported content, and other opaque or non-mergeable assets;
+- evidence appropriate to the claim, including editor validation, representative play, discipline review, profiling, networking, packaging, and target-device checks;
+- game-aware branches across planning, implementation, testing, review, debugging, architecture, handoff, and teaching while preserving efficient application workflows.
 
-If you want to keep up with changes to these skills, and any new ones I create, you can join ~60,000 other devs on my newsletter:
+The compatibility assessment that motivated these changes is recorded in [`.agents/reviews/video-game-development-compatibility.md`](./.agents/reviews/video-game-development-compatibility.md).
 
-[Sign Up To The Newsletter](https://www.aihero.dev/s/skills-newsletter)
+## Installation
 
-## Installation (30-second setup)
+> [!NOTE]
+> The official `mattpocock-skills` marketplace plugin and the `mattpocock/skills` installer source provide Matt Pocock's original edition, not this game-development adaptation. Follow the [upstream README](https://github.com/mattpocock/skills#readme) when that is what you want.
 
-Two ways in, two philosophies. **The [Claude Code plugin](https://code.claude.com/docs/en/plugins)** installs the whole set as a managed, read-only bundle that updates when I ship — you subscribe rather than fork. **[skills.sh](https://skills.sh/mattpocock/skills)** copies editable skill files into your project, so you can hack on them and make them your own. Pick one — installing both leaves you with every skill twice.
-
-### 1. Get the skills
-
-<details>
-<summary><strong>Claude Code</strong></summary>
+Install this adapted fork with the skills installer:
 
 ```bash
-claude plugins install mattpocock-skills
+npx skills@latest add rmfraess/mattpock-skills-game-dev
 ```
 
-Or, from inside a session:
+Choose the skills and supported agents you want. Include `setup-matt-pocock-skills` and `game-development` when configuring a game project.
 
-```
-/plugin install mattpocock-skills
-```
-
-It's in Claude Code's official marketplace, so there's nothing to add first, and updates arrive automatically.
-
-</details>
-
-<details>
-<summary><strong>Codex, and other agents</strong></summary>
+To inspect or contribute to the adaptation directly, clone this repository:
 
 ```bash
-npx skills@latest add mattpocock/skills
+git clone https://github.com/rmfraess/mattpock-skills-game-dev.git
 ```
 
-Pick the skills you want, and which coding agents to install them on. **The installer lets you choose which skills to take — make sure `setup-matt-pocock-skills` is one of them.**
+### Configure each project
 
-A native Codex plugin is on the roadmap — see [`.agents/adr/0002-ship-as-a-claude-code-plugin.md`](./.agents/adr/0002-ship-as-a-claude-code-plugin.md).
-
-</details>
-
-<details>
-<summary><strong>For tinkerers</strong></summary>
-
-Use the same installer, on any agent — including Claude Code:
-
-```bash
-npx skills@latest add mattpocock/skills
-```
-
-It writes the skills into your repo as ordinary files you own and can edit. Nothing updates behind your back; pull my latest changes when you want them with `npx skills update`.
-
-</details>
-
-### 2. Run `/setup-matt-pocock-skills`
-
-In your agent, run it once per repo. It will:
+In your agent, run `/setup-matt-pocock-skills` once per repository. It will:
 
 - Confirm the issue tracker you actually use, independently of where source is hosted
 - Ask you what labels you apply to tickets when you triage them (`/triage` uses labels)
 - Record the canonical agent instruction and domain-document locations
 - For game projects, record engine, authority, mutable-asset ownership, targets, budgets, and evidence adapters
 
-### 3. Bam - you're ready to go.
+## Why the Base Skills Exist
 
-## Why These Skills Exist
-
-I built these skills as a way to fix common failure modes I see with Claude Code, Codex, and other coding agents.
+Matt Pocock built the original skills to address common failure modes in Claude Code, Codex, and other coding agents. The principles below come from the [upstream project](https://github.com/mattpocock/skills); this fork extends their application to game development.
 
 ### #1: The Agent Didn't Do What I Want
 
@@ -101,7 +64,7 @@ This is just the same in the AI age. There is a communication gap between you an
 - [`/grill-me`](./skills/productivity/grill-me/SKILL.md) - for non-code uses
 - [`/grill-with-docs`](./skills/engineering/grill-with-docs/SKILL.md) - same as [`/grill-me`](./skills/productivity/grill-me/SKILL.md), but adds more goodies (see below)
 
-These are my most popular skills. They help you align with the agent before you get started, and think deeply about the change you're making. Use them _every_ time you want to make a change.
+These are among the original project's most popular skills. They help you align with the agent before you get started and think deeply about the change you're making.
 
 ### #2: The Agent Is Way Too Verbose
 
@@ -111,7 +74,7 @@ These are my most popular skills. They help you align with the agent before you 
 
 **The Problem**: At the start of a project, devs and the people they're building the software for (the domain experts) are usually speaking different languages.
 
-I felt the same tension with my agents. Agents are usually dropped into a project and asked to figure out the jargon as they go. So they use 20 words where 1 will do.
+Matt describes the same tension with coding agents: they are usually dropped into a project and asked to infer its jargon as they go, so they use 20 words where one will do.
 
 **The Fix** for this is a shared language. It's a document that helps agents decode the jargon used in the project.
 
@@ -120,7 +83,7 @@ I felt the same tension with my agents. Agents are usually dropped into a projec
 Example
 </summary>
 
-Here's an example [`CONTEXT.md`](https://github.com/mattpocock/course-video-manager/blob/076a5a7a182db0fe1e62971dd7a68bcadf010f1c/CONTEXT.md), from my `course-video-manager` repo. Which one is easier to read?
+The upstream README gives this example [`CONTEXT.md`](https://github.com/mattpocock/course-video-manager/blob/076a5a7a182db0fe1e62971dd7a68bcadf010f1c/CONTEXT.md) from Matt's `course-video-manager` repository. Which one is easier to read?
 
 - **BEFORE**: "There's a problem when a lesson inside a section of a course is made 'real' (i.e. given a spot in the file system)"
 - **AFTER**: "There's a problem with the materialization cascade"
@@ -154,9 +117,9 @@ It's time to look at your feedback loops. Without feedback on how the code it pr
 
 For automated tests, a red-green-refactor loop is critical. This is where the agent writes a failing test first, then fixes the test. This helps give the agent a consistent level of feedback that results in far better code.
 
-I've built a **[`/tdd`](./skills/engineering/tdd/SKILL.md) skill** you can slot into any project. It encourages red-green-refactor and gives the agent plenty of guidance on what makes good and bad tests.
+The base library includes a **[`/tdd`](./skills/engineering/tdd/SKILL.md) skill** you can slot into any project. It encourages red-green-refactor and gives the agent guidance on what makes good and bad tests.
 
-For debugging, I've also built a **[`/diagnosing-bugs`](./skills/engineering/diagnosing-bugs/SKILL.md)** skill that wraps best debugging practices into a disciplined loop, gated phase by phase.
+For debugging, it also includes a **[`/diagnosing-bugs`](./skills/engineering/diagnosing-bugs/SKILL.md)** skill that wraps debugging practices into a disciplined loop, gated phase by phase.
 
 ### #4: We Built A Ball Of Mud
 
@@ -176,11 +139,11 @@ This is built in to every layer of these skills:
 
 - [`/to-spec`](./skills/engineering/to-spec/SKILL.md) quizzes you about which modules you're touching before creating a spec
 
-And crucially, [`/improve-codebase-architecture`](./skills/engineering/improve-codebase-architecture/SKILL.md) surveys a codebase for deepening opportunities and hands you the candidates. I recommend running it on your codebase once every few days. It is a survey, not a rescue: on a genuinely old codebase it will find real candidates, but it won't untangle the mud for you.
+And crucially, [`/improve-codebase-architecture`](./skills/engineering/improve-codebase-architecture/SKILL.md) surveys a codebase for deepening opportunities and hands you the candidates. The upstream workflow recommends running it regularly. It is a survey, not a rescue: on a genuinely old codebase it will find real candidates, but it won't untangle the mud for you.
 
 ### Summary
 
-Software engineering fundamentals matter more than ever. These skills are my best effort at condensing them into repeatable practices, to help you ship dependable applications and games without confusing one domain's evidence for another. Enjoy.
+Software engineering fundamentals matter more than ever. This fork preserves the base library's repeatable practices while adding the different evidence and production safeguards required for dependable games.
 
 ## Reference
 
@@ -188,7 +151,7 @@ These split on one axis — who can invoke them. **User-invoked** skills are rea
 
 ### Engineering
 
-Skills I use daily for software and game work.
+Skills available for software and game work.
 
 **User-invoked**
 
